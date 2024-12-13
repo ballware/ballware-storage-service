@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Service", "src\Ballware.Storage.Service\Ballware.Storage.Service.csproj", "{14B4D3E4-DF06-42A6-B644-C9F66C66EED7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Provider", "src\Ballware.Storage.Provider\Ballware.Storage.Provider.csproj", "{8A1185A9-C53C-4713-9E12-E2D3AEBBCB93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Azure", "src\Ballware.Storage.Azure\Ballware.Storage.Azure.csproj", "{0304F260-65E2-44C6-B200-EFC7E9C5743D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{14B4D3E4-DF06-42A6-B644-C9F66C66EED7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14B4D3E4-DF06-42A6-B644-C9F66C66EED7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14B4D3E4-DF06-42A6-B644-C9F66C66EED7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14B4D3E4-DF06-42A6-B644-C9F66C66EED7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A1185A9-C53C-4713-9E12-E2D3AEBBCB93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A1185A9-C53C-4713-9E12-E2D3AEBBCB93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A1185A9-C53C-4713-9E12-E2D3AEBBCB93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A1185A9-C53C-4713-9E12-E2D3AEBBCB93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0304F260-65E2-44C6-B200-EFC7E9C5743D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0304F260-65E2-44C6-B200-EFC7E9C5743D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0304F260-65E2-44C6-B200-EFC7E9C5743D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0304F260-65E2-44C6-B200-EFC7E9C5743D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
