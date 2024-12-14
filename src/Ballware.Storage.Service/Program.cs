@@ -18,15 +18,10 @@ builder.Configuration.AddJsonFile($"appsettings.{environment.EnvironmentName}.js
 builder.Configuration.AddJsonFile($"appsettings.local.json", true, true);
 builder.Configuration.AddEnvironmentVariables();
 
-CorsOptions corsOptions = new();
-AuthorizationOptions authorizationOptions = new();
-StorageOptions storageOptions = new();
-SwaggerOptions swaggerOptions = new();
-
-builder.Configuration.GetSection("Cors").Bind(corsOptions);
-builder.Configuration.GetSection("Authorization").Bind(authorizationOptions);
-builder.Configuration.GetSection("Storage").Bind(storageOptions);
-builder.Configuration.GetSection("Swagger").Bind(swaggerOptions);
+CorsOptions? corsOptions = builder.Configuration.GetSection("Cors").Get<CorsOptions>();
+AuthorizationOptions? authorizationOptions = builder.Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
+StorageOptions? storageOptions = builder.Configuration.GetSection("Storage").Get<StorageOptions>();
+SwaggerOptions? swaggerOptions = builder.Configuration.GetSection("Swagger").Get<SwaggerOptions>();
 
 builder.Services.AddOptionsWithValidateOnStart<AuthorizationOptions>()
     .Bind(builder.Configuration.GetSection("Authorization"))
@@ -39,6 +34,12 @@ builder.Services.AddOptionsWithValidateOnStart<StorageOptions>()
 builder.Services.AddOptionsWithValidateOnStart<SwaggerOptions>()
     .Bind(builder.Configuration.GetSection("Swagger"))
     .ValidateDataAnnotations();
+
+if (corsOptions == null || authorizationOptions == null || storageOptions == null || swaggerOptions == null)
+{
+    await Console.Error.WriteLineAsync("Error: Required configuration entries are missing, existing.");
+    System.Environment.Exit(-1);
+}
 
 builder.Services.AddAuthentication(options =>
 {
@@ -56,10 +57,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("storageApi", policy => policy.RequireClaim("scope", authorizationOptions.RequiredScopes.Split(" ")));
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("storageApi",
+    policy => policy.RequireClaim("scope", authorizationOptions.RequiredScopes.Split(" ")));
 
 builder.Services.AddCors(options =>
 {
@@ -128,11 +128,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.UseStaticFiles();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapSwagger();
-});
+app.MapControllers();
+app.MapSwagger();
 
 app.UseSwagger();
 

@@ -82,7 +82,7 @@ public class FileController : ControllerBase
     [SwaggerResponse((int)HttpStatusCode.Created, "File created")]
     public virtual async Task<IActionResult> UploadFile(string owner, [FromForm(Name = "files[]")] List<IFormFile> files)
     {
-        IFormFile lastFile = null;
+        IFormFile? lastFile = null;
 
         foreach (var file in files)
         {
