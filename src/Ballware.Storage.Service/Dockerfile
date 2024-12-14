@@ -6,7 +6,10 @@ EXPOSE 5001
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
 WORKDIR /src
 
-COPY . .
+COPY ./Ballware.Storage.Azure ./Ballware.Storage.Azure
+COPY ./Ballware.Storage.Provider ./Ballware.Storage.Provider
+COPY ./Ballware.Storage.Service ./Ballware.Storage.Service
+
 WORKDIR "/src/Ballware.Storage.Service"
 RUN dotnet build "Ballware.Storage.Service.csproj" -c Release -o /app/build
 
