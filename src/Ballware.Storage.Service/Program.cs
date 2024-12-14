@@ -18,10 +18,12 @@ builder.Configuration.AddJsonFile($"appsettings.{environment.EnvironmentName}.js
 builder.Configuration.AddJsonFile($"appsettings.local.json", true, true);
 builder.Configuration.AddEnvironmentVariables();
 
+CorsOptions corsOptions = new();
 AuthorizationOptions authorizationOptions = new();
 StorageOptions storageOptions = new();
 SwaggerOptions swaggerOptions = new();
 
+builder.Configuration.GetSection("Cors").Bind(corsOptions);
 builder.Configuration.GetSection("Authorization").Bind(authorizationOptions);
 builder.Configuration.GetSection("Storage").Bind(storageOptions);
 builder.Configuration.GetSection("Swagger").Bind(swaggerOptions);
@@ -61,12 +63,11 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("StoragePolicy",
-        c =>
+    options.AddDefaultPolicy(c =>
         {
-            c.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+            c.WithOrigins(corsOptions.AllowedOrigins)
+                .WithMethods(corsOptions.AllowedMethods)
+                .WithHeaders(corsOptions.AllowedHeaders);
         });
 });
 
@@ -121,8 +122,7 @@ if (app.Environment.IsDevelopment())
     IdentityModelEventSource.ShowPII = true;
 }
 
-app.UseCors("StoragePolicy");
-
+app.UseCors();
 app.UseRouting();
 
 app.UseAuthorization();
@@ -148,4 +148,4 @@ if (swaggerOptions.EnableClient)
     });
 }
 
-app.Run();
+await app.RunAsync();
