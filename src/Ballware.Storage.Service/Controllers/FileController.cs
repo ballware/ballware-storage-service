@@ -78,28 +78,28 @@ public class FileController : ControllerBase
       OperationId = "UploadFileForOwner"
     )]
     [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+    [SwaggerResponse((int)HttpStatusCode.BadRequest, "No files uploaded")]
     [SwaggerResponse((int)HttpStatusCode.Created, "File created")]
-    [SwaggerResponse((int)HttpStatusCode.BadRequest, "No file uploaded")]
     public virtual async Task<IActionResult> UploadFile(string owner, [FromForm(Name = "files[]")] List<IFormFile> files)
     {
-        if (files != null)
+        IFormFile lastFile = null;
+
+        foreach (var file in files)
         {
-            IFormFile lastFile = null;
+            lastFile = file;
+            await _fileStorage.UploadFileAsync(owner, file.FileName, file.OpenReadStream());
+        }
 
-            foreach (var file in files)
-            {
-                lastFile = file;
-                await _fileStorage.UploadFileAsync(owner, file.FileName, file.OpenReadStream());
-            }
-
+        if (lastFile != null)
+        {
             return Created(Url.Action(nameof(ByName), new
             {
                 owner = owner,
                 file = lastFile.FileName
-            }), null);
-        }
-
-        return BadRequest();
+            }), null);    
+        } 
+        
+        return BadRequest("No file uploaded");
     }
 
     [HttpDelete]

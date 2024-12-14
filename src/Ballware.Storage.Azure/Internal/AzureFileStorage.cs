@@ -5,7 +5,7 @@ namespace Ballware.Storage.Azure.Internal;
 
 class AzureFileStorage : IFileStorage
 {
-    private ShareClient GetFileShare(string connectionString, string shareName)
+    private static ShareClient GetFileShare(string connectionString, string shareName)
     {
         return new ShareClient(connectionString, shareName);
     }
