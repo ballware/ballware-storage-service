@@ -28,19 +28,6 @@ jobs:
           registry: ballware.azurecr.io
           username: ${{ secrets.AZURE_USERNAME }}
           password: ${{ secrets.AZURE_TOKEN }}      
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
-        with: 
-          dotnet-version: 
-            8.0
-      - name: Install SonarQube
-        run: dotnet tool install --global dotnet-sonarscanner
-      - name: Start SonarQube scan
-        run: dotnet sonarscanner begin /k:"ballware_ballware-storage-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-      - name: Build solution for SonarQube
-        run: dotnet build ballware-storage-service.sln --no-incremental
-      - name: End SonarQube scan
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"        
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
