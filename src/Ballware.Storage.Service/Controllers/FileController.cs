@@ -36,7 +36,7 @@ public class FileController : ControllerBase
     {
         var files = await _fileStorage.EnumerateFilesAsync(owner);
 
-        return Ok(files.Select(f => new { Name = f.Filename }));
+        return Ok(files);
     }
 
     [HttpGet]

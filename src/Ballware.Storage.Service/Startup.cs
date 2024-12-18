@@ -8,8 +8,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace Ballware.Storage.Service;
 
-public class Startup(ConfigurationManager configuration, IServiceCollection services)
+public class Startup(IWebHostEnvironment environment, ConfigurationManager configuration, IServiceCollection services)
 {
+    private IWebHostEnvironment Environment { get; } = environment;
     private ConfigurationManager Configuration { get; } = configuration;
     private IServiceCollection Services { get; } = services;
 
@@ -120,7 +121,7 @@ public class Startup(ConfigurationManager configuration, IServiceCollection serv
 
     public void InitializeApp(WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        if (Environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
             IdentityModelEventSource.ShowPII = true;

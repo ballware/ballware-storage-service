@@ -1,6 +1,6 @@
 namespace Ballware.Storage.Provider;
 
-public class FileMetadata
+public sealed class FileMetadata
 {
-    public virtual required string Filename { get; set; }
+    public required string Filename { get; set; }
 }

@@ -14,7 +14,7 @@ builder.Configuration.AddJsonFile($"appsettings.{environment.EnvironmentName}.js
 builder.Configuration.AddJsonFile($"appsettings.local.json", true, true);
 builder.Configuration.AddEnvironmentVariables();
 
-var startup = new Startup(builder.Configuration, builder.Services);
+var startup = new Startup(builder.Environment, builder.Configuration, builder.Services);
 
 try
 {

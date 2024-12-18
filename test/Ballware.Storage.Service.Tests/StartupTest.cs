@@ -1,9 +1,12 @@
+using Ballware.Storage.Provider;
 using Ballware.Storage.Service.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ballware.Storage.Service.Tests;
 
+[TestFixture]
 public class StartupTest
 {
     [Test]
@@ -14,8 +17,27 @@ public class StartupTest
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings_missing_authorization.json"), optional: false);
         
-        var startup = new Startup(builder.Configuration, builder.Services);
+        var startup = new Startup(builder.Environment, builder.Configuration, builder.Services);
 
         Assert.Throws<ConfigurationException>(() => startup.InitializeServices());
+    }
+    
+    [Test]
+    public void Startup_complete_configuration_succeeds()
+    {
+        var builder = WebApplication.CreateBuilder();
+
+        builder.Configuration.Sources.Clear();
+        builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings_complete.json"), optional: false);
+        
+        var startup = new Startup(builder.Environment, builder.Configuration, builder.Services);
+
+        startup.InitializeServices();
+        
+        var app = builder.Build();
+        
+        startup.InitializeApp(app);
+        
+        Assert.NotNull(app.Services.GetService<IFileStorage>());
     }
 }
