@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using Ballware.Storage.Provider;
 using Ballware.Storage.Service.Tests.Helper;
@@ -22,7 +21,7 @@ public class FileControllerTest : MockableBaseTest
 
         mockedFileStorage.Setup(m => m.EnumerateFilesAsync(owner.ToString())).ReturnsAsync(ownerFiles);
         
-        MockedServices.AddMock<IFileStorage>(mockedFileStorage.Object);
+        MockedServices?.AddMock<IFileStorage>(mockedFileStorage.Object);
         
         var response = await GetClient().GetAsync($"/api/file/all/{owner}");
         
@@ -39,14 +38,14 @@ public class FileControllerTest : MockableBaseTest
 
         mockedFileStorage.Setup(m => m.EnumerateFilesAsync(owner.ToString())).ReturnsAsync(ownerFiles);
         
-        MockedServices.AddMock<IFileStorage>(mockedFileStorage.Object);
+        MockedServices?.AddMock<IFileStorage>(mockedFileStorage.Object);
         
         var response = await GetAuthenticatedClient().GetAsync($"/api/file/all/{owner}");
-        Assert.True(response.IsSuccessStatusCode);
+        Assert.That(response.IsSuccessStatusCode, Is.True);
         
         var responseContent = await response.Content.ReadFromJsonAsync<IEnumerable<FileMetadata>>();
         
-        CollectionAssert.AreEqual(ownerFiles.Select(f => f.Filename).ToArray(), responseContent?.Select(f => f.Filename).ToArray());
+        Assert.That(responseContent?.Select(f => f.Filename).ToArray(), Is.EqualTo(ownerFiles.Select(f => f.Filename).ToArray()));
     }
     
     [Test]
@@ -58,7 +57,7 @@ public class FileControllerTest : MockableBaseTest
 
         mockedFileStorage.Setup(m => m.OpenFileAsync(owner.ToString(), "File1")).ReturnsAsync(null as Stream);
         
-        MockedServices.AddMock<IFileStorage>(mockedFileStorage.Object);
+        MockedServices?.AddMock<IFileStorage>(mockedFileStorage.Object);
         
         var response = await GetClient().GetAsync($"/api/file/byname/{owner}?file=File1");
         
@@ -80,7 +79,7 @@ public class FileControllerTest : MockableBaseTest
         
         mockedFileStorage.Setup(m => m.OpenFileAsync(owner.ToString(), "File1")).ReturnsAsync(expectedStream);
         
-        MockedServices.AddMock<IFileStorage>(mockedFileStorage.Object);
+        MockedServices?.AddMock<IFileStorage>(mockedFileStorage.Object);
         
         var response = await GetClient().GetAsync($"/api/file/byname/{owner}?file=File1");
         

@@ -38,6 +38,6 @@ public class StartupTest
         
         startup.InitializeApp(app);
         
-        Assert.NotNull(app.Services.GetService<IFileStorage>());
+        Assert.That(app.Services.GetService<IFileStorage>(), Is.Not.Null);
     }
 }
