@@ -14,7 +14,6 @@ public class FileControllerTest : MockableBaseTest
     [Test]
     public async Task Query_existing_files_for_unauthorized_fail()
     {
-        /*
         var owner = Guid.NewGuid();
         var ownerFiles = new List<FileMetadata>() { new FileMetadata() { Filename = "File1" }, new FileMetadata() { Filename = "File2" } };
         
@@ -23,6 +22,7 @@ public class FileControllerTest : MockableBaseTest
         mockedFileStorage.Setup(m => m.EnumerateFilesAsync(owner.ToString())).ReturnsAsync(ownerFiles);
         
         MockedServices?.AddMock<IFileStorage>(mockedFileStorage.Object);
+        /*
         
         var response = await GetClient().GetAsync($"/api/file/all/{owner}");
         
