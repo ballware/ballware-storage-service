@@ -32,6 +32,6 @@ jobs:
       - name: Build solution for SonarQube
         run: dotnet build ballware-storage-service.sln --no-incremental
       - name: Run tests with coverage report
-        run: dotnet test --no-build --collect:"Code Coverage;Format=Xml;CoverageFileName=coverage.xml" -v normal   
+        run: dotnet test --no-build --collect:"Code Coverage;Format=Xml;CoverageFileName=coverage.xml" -v detailed   
       #- name: End SonarQube scan
       #  run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"        
