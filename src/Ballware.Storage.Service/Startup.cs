@@ -132,7 +132,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         app.UseAuthorization();
 
-        app.UseStaticFiles();
         app.MapControllers();
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
