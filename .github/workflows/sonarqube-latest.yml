@@ -12,8 +12,10 @@ concurrency:
 
 jobs:
   sonarqube:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest    
     steps:
+      - name: Install procdump
+        run: wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && dpkg -i packages-microsoft-prod.deb && apt-get update && apt-get install procdump
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -31,8 +33,8 @@ jobs:
       #  run: dotnet sonarscanner begin /k:"ballware_ballware-storage-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml"
       - name: Build solution for SonarQube
         run: dotnet build ballware-storage-service.sln --no-incremental
-      - name: Run tests with coverage report
-        run: dotnet test ballware-storage-service.sln --no-build --collect:"Code Coverage;Format=Xml;CoverageFileName=coverage.xml" -v normal --blame-crash --results-directory ./results
+      - name: Run tests with coverage report        
+        run: VSTEST_DUMP_FORCEPROCDUMP=1 && dotnet test ballware-storage-service.sln --no-build --collect:"Code Coverage;Format=Xml;CoverageFileName=coverage.xml" -v normal --blame-crash --results-directory ./results
       #- name: End SonarQube scan
       #  run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"        
       - name: Archive test results on failure
