@@ -51,6 +51,7 @@ public class MockableWebApplicationFactory : WebApplicationFactory<Startup>
         builder
             .ConfigureServices(services =>
             {
+                /*
                 services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     var config = new OpenIdConnectConfiguration()
@@ -62,7 +63,7 @@ public class MockableWebApplicationFactory : WebApplicationFactory<Startup>
                     options.Configuration = config;
                     options.Audience = Audience;
                 });
-                
+                */
                 foreach (var (interfaceType, serviceMock) in MockedServices.GetMocks())
                 {
                     var registeredService = services.SingleOrDefault(d => d.ServiceType == interfaceType);

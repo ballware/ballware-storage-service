@@ -22,12 +22,10 @@ public class FileControllerTest : MockableBaseTest
         mockedFileStorage.Setup(m => m.EnumerateFilesAsync(owner.ToString())).ReturnsAsync(ownerFiles);
         
         MockedServices?.AddMock<IFileStorage>(mockedFileStorage.Object);
-        /*
         
         var response = await GetClient().GetAsync($"/api/file/all/{owner}");
         
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-        */
     }
     /*
     [Test]
