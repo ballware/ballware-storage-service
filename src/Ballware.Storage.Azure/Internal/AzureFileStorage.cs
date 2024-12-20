@@ -13,17 +13,19 @@ class AzureFileStorage : IFileStorage
     private string ConnectionString { get; }
     private string Share { get; }
 
-    public AzureFileStorage(string connectionString, string share) {
+    public AzureFileStorage(string connectionString, string share)
+    {
         ConnectionString = connectionString;
         Share = share;
     }
 
-    public virtual async Task<IEnumerable<FileMetadata>> EnumerateFilesAsync(string owner) {
-        
+    public virtual async Task<IEnumerable<FileMetadata>> EnumerateFilesAsync(string owner)
+    {
+
         var files = new List<FileMetadata>();
-        
+
         var share = GetFileShare(ConnectionString, Share);
-        
+
         var contextDirectory =
             share.GetDirectoryClient(owner);
 
@@ -43,7 +45,8 @@ class AzureFileStorage : IFileStorage
         return files;
     }
 
-    public virtual async Task<Stream?> OpenFileAsync(string owner, string fileName) {
+    public virtual async Task<Stream?> OpenFileAsync(string owner, string fileName)
+    {
         var share = GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
@@ -66,8 +69,9 @@ class AzureFileStorage : IFileStorage
         return null;
     }
 
-    public virtual async Task UploadFileAsync(string owner, string fileName, Stream content) {
-        
+    public virtual async Task UploadFileAsync(string owner, string fileName, Stream content)
+    {
+
         var share = GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
@@ -84,7 +88,8 @@ class AzureFileStorage : IFileStorage
         }
     }
 
-    public virtual async Task DropFileAsync(string owner, string fileName) {
+    public virtual async Task DropFileAsync(string owner, string fileName)
+    {
         var share = GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
@@ -94,14 +99,15 @@ class AzureFileStorage : IFileStorage
         {
             await contextDirectory.CreateAsync();
         }
-            
+
         var fileRef = contextDirectory.GetFileClient(fileName);
 
         await fileRef.DeleteIfExistsAsync();
     }
 
-    public virtual async Task DropAllAsync(string owner) {
-        
+    public virtual async Task DropAllAsync(string owner)
+    {
+
         var share = GetFileShare(ConnectionString, Share);
 
         var contextDirectory =

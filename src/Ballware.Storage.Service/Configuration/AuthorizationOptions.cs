@@ -6,7 +6,7 @@ public class AuthorizationOptions
 {
     [Required]
     public required string Authority { get; set; }
-    
+
     [Required]
     public required string Audience { get; set; }
     public bool RequireHttpsMetadata { get; set; } = true;

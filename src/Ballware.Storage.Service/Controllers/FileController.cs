@@ -96,9 +96,9 @@ public class FileController : ControllerBase
             {
                 owner = owner,
                 file = lastFile.FileName
-            }), null);    
-        } 
-        
+            }), null);
+        }
+
         return BadRequest("No file uploaded");
     }
 

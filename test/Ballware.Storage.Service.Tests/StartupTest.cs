@@ -17,12 +17,12 @@ public class StartupTest
 
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings_missing_authorization.json"), optional: false);
-        
+
         var startup = new Startup(builder.Environment, builder.Configuration, builder.Services);
 
         Assert.Throws<ConfigurationException>(() => startup.InitializeServices());
     }
-    
+
     [Test]
     public void Startup_complete_configuration_succeeds()
     {
@@ -30,15 +30,15 @@ public class StartupTest
 
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings_complete.json"), optional: false);
-        
+
         var startup = new Startup(builder.Environment, builder.Configuration, builder.Services);
 
         startup.InitializeServices();
-        
+
         var app = builder.Build();
-        
+
         startup.InitializeApp(app);
-        
+
         Assert.That(app.Services.GetService<IFileStorage>(), Is.Not.Null);
     }
 }

@@ -12,5 +12,5 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IFileStorage>(new AzureFileStorage(connectionString, shareName));
 
         return services;
-    } 
+    }
 }

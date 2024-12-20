@@ -13,14 +13,14 @@ namespace Ballware.Storage.Service.Tests.Helper;
 public class MockableWebApplicationFactory : WebApplicationFactory<Startup>
 {
     private static RandomNumberGenerator RandomNumberGenerator { get; } = RandomNumberGenerator.Create();
-    
+
     private MockedServicesRepository MockedServices { get; }
-    
+
     private SecurityKey SecurityKey { get; set; }
     private SigningCredentials SigningCredentials { get; set; }
     private JwtSecurityTokenHandler TokenHandler { get; set; }
     private byte[] Key { get; set; } = new byte[32];
-    
+
     public string Issuer { get; set; } = "MockedTokenIssuer";
     public string Audience { get; set; } = "MockedTokenAudience";
 
@@ -29,7 +29,7 @@ public class MockableWebApplicationFactory : WebApplicationFactory<Startup>
         return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20),
             SigningCredentials));
     }
-    
+
     public MockableWebApplicationFactory(MockedServicesRepository mockedServicesRepository)
     {
         RandomNumberGenerator.GetBytes(Key);
@@ -39,7 +39,7 @@ public class MockableWebApplicationFactory : WebApplicationFactory<Startup>
         };
         SigningCredentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
         TokenHandler = new JwtSecurityTokenHandler();
-        
+
         MockedServices = mockedServicesRepository;
     }
 
@@ -51,28 +51,27 @@ public class MockableWebApplicationFactory : WebApplicationFactory<Startup>
         builder
             .ConfigureServices(services =>
             {
-                /*
                 services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     var config = new OpenIdConnectConfiguration()
                     {
                         Issuer = Issuer
                     };
-                        
+
                     config.SigningKeys.Add(SecurityKey);
                     options.Configuration = config;
                     options.Audience = Audience;
                 });
-                */
+
                 foreach (var (interfaceType, serviceMock) in MockedServices.GetMocks())
                 {
                     var registeredService = services.SingleOrDefault(d => d.ServiceType == interfaceType);
 
                     if (registeredService != null)
                     {
-                        services.Remove(registeredService);    
+                        services.Remove(registeredService);
                     }
-                    
+
                     services.AddSingleton(interfaceType, serviceMock);
                 }
             });

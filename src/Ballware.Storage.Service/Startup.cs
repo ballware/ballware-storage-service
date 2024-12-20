@@ -70,20 +70,20 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 });
             });
         }
-        
+
         Services.AddHttpContextAccessor();
 
         Services.AddMvcCore()
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
             .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver())
             .AddApiExplorer();
-        
+
         Services.AddControllers()
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
             .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
         Services.AddBallwareAzureFileStorageShare(
-            storageOptions.ConnectionString, 
+            storageOptions.ConnectionString,
             storageOptions.Share);
 
         if (swaggerOptions != null)
@@ -115,7 +115,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 });
             });
 
-            Services.AddSwaggerGenNewtonsoftSupport();    
+            Services.AddSwaggerGenNewtonsoftSupport();
         }
     }
 
@@ -140,7 +140,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if (swaggerOptions != null && authorizationOptions != null)
         {
             app.MapSwagger();
-        
+
             app.UseSwagger();
 
             if (swaggerOptions.EnableClient)
@@ -153,7 +153,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     c.OAuthScopes(authorizationOptions.RequiredScopes?.Split(" "));
                     c.OAuthUsePkce();
                 });
-            }    
+            }
         }
     }
 }

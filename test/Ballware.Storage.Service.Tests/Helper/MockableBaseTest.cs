@@ -8,9 +8,9 @@ public class MockableBaseTest
 {
     private MockableWebApplicationFactory WebApplicationFactory { get; set; }
     protected MockedServicesRepository? MockedServices { get; set; }
-    
+
     protected Guid UserSubject { get; set; } = Guid.NewGuid();
-    
+
     protected Guid Tenant { get; set; } = Guid.NewGuid();
 
     protected string Scope { get; set; } = "storageApi";
@@ -36,7 +36,7 @@ public class MockableBaseTest
         var client = GetClient();
 
         var claims = new List<Claim>();
-        
+
         if (additionalClaims != null)
         {
             claims.AddRange(additionalClaims);
@@ -46,19 +46,19 @@ public class MockableBaseTest
         {
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, UserSubject.ToString()));
         }
-        
+
         if (null == claims.FirstOrDefault(c => c.Type == "scope"))
         {
             claims.Add(new Claim("scope", Scope));
         }
-        
+
         if (null == claims.FirstOrDefault(c => c.Type == "tenant"))
         {
             claims.Add(new Claim("tenant", Tenant.ToString()));
         }
-        
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", WebApplicationFactory.GenerateToken(claims));  
-        
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", WebApplicationFactory.GenerateToken(claims));
+
         return client;
     }
 }
