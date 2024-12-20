@@ -152,6 +152,7 @@ _TeamCity*
 coverage*.json
 coverage*.xml
 coverage*.info
+!coverage-pre-commit.xml
 
 # Visual Studio code coverage results
 *.coverage

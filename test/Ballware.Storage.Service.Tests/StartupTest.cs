@@ -11,6 +11,7 @@ namespace Ballware.Storage.Service.Tests;
 public class StartupTest
 {
     [Test]
+    [Category("PreCommit")]
     public void Startup_missing_configuration_throws_configuration_exception()
     {
         var builder = WebApplication.CreateBuilder();
@@ -24,6 +25,7 @@ public class StartupTest
     }
 
     [Test]
+    [Category("PreCommit")]
     public void Startup_complete_configuration_succeeds()
     {
         var builder = WebApplication.CreateBuilder();

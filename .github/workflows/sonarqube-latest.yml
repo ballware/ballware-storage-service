@@ -30,7 +30,7 @@ jobs:
       - name: Install dotnet coverage
         run: dotnet tool install --global dotnet-coverage        
       - name: Start SonarQube scan
-        run: dotnet sonarscanner begin /k:"ballware_ballware-storage-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths="./results/**/coverage.xml"
+        run: dotnet sonarscanner begin /k:"ballware_ballware-storage-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths="./coverage-pre-commit.xml,./results/**/coverage.xml"
       - name: Build solution for SonarQube
         run: dotnet build ballware-storage-service.sln --no-incremental
       - name: Run tests with coverage report        
