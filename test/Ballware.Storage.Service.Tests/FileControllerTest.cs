@@ -13,7 +13,6 @@ namespace Ballware.Storage.Service.Tests;
 public class FileControllerTest : MockableBaseTest
 {
     [Test]
-    [Category("PreCommit")]
     public async Task Query_existing_files_for_unauthorized_fail()
     {
         var owner = Guid.NewGuid();
@@ -31,7 +30,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Query_existing_files_for_owner_succeeds()
     {
         var owner = Guid.NewGuid();
@@ -52,7 +50,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Download_byname_for_unknown_return_not_found()
     {
         var owner = Guid.NewGuid();
@@ -69,7 +66,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Download_byname_for_existing_succeeds()
     {
         var owner = Guid.NewGuid();
@@ -96,7 +92,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Upload_byname_unauthorized_fail()
     {
         var owner = Guid.NewGuid();
@@ -119,7 +114,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Upload_byname_without_file_fail()
     {
         var owner = Guid.NewGuid();
@@ -138,7 +132,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Upload_byname_succeeds()
     {
         var owner = Guid.NewGuid();
@@ -162,7 +155,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Delete_byname_unauthorized_fail()
     {
         var owner = Guid.NewGuid();
@@ -179,7 +171,6 @@ public class FileControllerTest : MockableBaseTest
     }
 
     [Test]
-    [Category("PreCommit")]
     public async Task Delete_byname_succeeds()
     {
         var owner = Guid.NewGuid();
