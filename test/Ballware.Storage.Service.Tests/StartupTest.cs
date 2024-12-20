@@ -7,9 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Ballware.Storage.Service.Tests;
 
 [TestFixture]
+[Category("UnitTest")]
 public class StartupTest
 {
-    /*
     [Test]
     public void Startup_missing_configuration_throws_configuration_exception()
     {
@@ -41,5 +41,4 @@ public class StartupTest
         
         Assert.That(app.Services.GetService<IFileStorage>(), Is.Not.Null);
     }
-    */
 }
