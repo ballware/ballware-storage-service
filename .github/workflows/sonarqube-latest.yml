@@ -34,7 +34,7 @@ jobs:
       - name: Build solution for SonarQube
         run: dotnet build ballware-storage-service.sln --no-incremental
       - name: Run tests with coverage report        
-        run: dotnet dotcover test ballware-storage-service.sln --dcReportType=HTML -- NUnit.Where="cat == UnitTest"
+        run: dotnet dotcover test ballware-storage-service.sln --dcReportType=HTML -- NUnit.Where="cat == UnitTest or cat == IntegrationTest"
         env:
           VSTEST_DUMP_FORCEPROCDUMP: 1
       - name: End SonarQube scan
