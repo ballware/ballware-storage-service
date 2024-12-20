@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/frank/Documents/GitHub/ballware-storage-service/src/Ballware.Storage.Service/Controllers/FileController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Net;
+using Ballware.Storage.Provider;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+
+namespace Ballware.Storage.Service.Controllers;
+
+[Route(&quot;api/[controller]&quot;)]
+[ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class FileController : ControllerBase
+{
+    private readonly IFileStorage _fileStorage;
+
+    public FileController(IFileStorage storage)
+    {
+        _fileStorage = storage;
+    }
+
+    [HttpGet]
+    [Route(&quot;all/{owner}&quot;)]
+    [Authorize(&quot;storageApi&quot;)]
+    [ApiExplorerSettings(GroupName = &quot;storage&quot;)]
+    [SwaggerOperation(
+      Summary = &quot;Query existing files for owner&quot;,
+      Description = &quot;&quot;,
+      OperationId = &quot;AllFilesForOwner&quot;
+    )]
+    [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+    [SwaggerResponse((int)HttpStatusCode.OK, &quot;Existing files for owner&quot;, typeof(IEnumerable&lt;FileMetadata&gt;), new[] { MimeMapping.KnownMimeTypes.Json })]
+    public virtual async Task&lt;IActionResult&gt; All(
+        [SwaggerParameter(&quot;Owner id&quot;)] string owner
+    )
+    {
+        var files = await _fileStorage.EnumerateFilesAsync(owner);
+
+        return Ok(files);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    [Route(&quot;byname/{owner}&quot;)]
+    [ApiExplorerSettings(GroupName = &quot;storage&quot;)]
+    [SwaggerOperation(
+      Summary = &quot;Download file&quot;,
+      Description = &quot;&quot;,
+      OperationId = &quot;FileByNameForOwner&quot;
+    )]
+    [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+    [SwaggerResponse((int)HttpStatusCode.NotFound)]
+    [SwaggerResponse((int)HttpStatusCode.OK, &quot;File download&quot;, typeof(FileResult))]
+    public virtual async Task&lt;IActionResult&gt; ByName(string owner, [FromQuery] string file)
+    {
+        var stream = await _fileStorage.OpenFileAsync(owner, file);
+
+        if (stream != null)
+        {
+            return new FileStreamResult(stream, MimeMapping.MimeUtility.GetMimeMapping(Path.GetExtension(file)))
+            {
+                FileDownloadName = file
+            };
+        }
+        else
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost]
+    [Route(&quot;upload/{owner}&quot;)]
+    [Authorize(&quot;storageApi&quot;)]
+    [ApiExplorerSettings(GroupName = &quot;storage&quot;)]
+    [SwaggerOperation(
+      Summary = &quot;Upload file&quot;,
+      Description = &quot;&quot;,
+      OperationId = &quot;UploadFileForOwner&quot;
+    )]
+    [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+    [SwaggerResponse((int)HttpStatusCode.BadRequest, &quot;No files uploaded&quot;)]
+    [SwaggerResponse((int)HttpStatusCode.Created, &quot;File created&quot;)]
+    public virtual async Task&lt;IActionResult&gt; UploadFile(string owner, [FromForm(Name = &quot;files[]&quot;)] List&lt;IFormFile&gt; files)
+    {
+        IFormFile? lastFile = null;
+
+        foreach (var file in files)
+        {
+            lastFile = file;
+            await _fileStorage.UploadFileAsync(owner, file.FileName, file.OpenReadStream());
+        }
+
+        if (lastFile != null)
+        {
+            return Created(Url.Action(nameof(ByName), new
+            {
+                owner = owner,
+                file = lastFile.FileName
+            }), null);
+        }
+
+        return BadRequest(&quot;No file uploaded&quot;);
+    }
+
+    [HttpDelete]
+    [Route(&quot;byname/{owner}&quot;)]
+    [Authorize(&quot;storageApi&quot;)]
+    [ApiExplorerSettings(GroupName = &quot;storage&quot;)]
+    [SwaggerOperation(
+      Summary = &quot;Remove file&quot;,
+      Description = &quot;&quot;,
+      OperationId = &quot;RemoveFileForOwner&quot;
+    )]
+    [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+    [SwaggerResponse((int)HttpStatusCode.OK, &quot;File removed&quot;)]
+    public virtual async Task&lt;IActionResult&gt; DeleteFile(string owner, [FromQuery] string file)
+    {
+        await _fileStorage.DropFileAsync(owner, file);
+
+        return Ok();
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,5,17,48,1],[18,5,18,6,1],[19,9,19,32,1],[20,5,20,6,1],[36,5,36,6,1],[37,9,37,67,1],[39,9,39,26,1],[40,5,40,6,1],[55,5,55,6,1],[56,9,56,68,1],[58,9,58,28,1],[59,9,59,10,1],[60,13,63,15,1],[66,9,66,10,1],[67,13,67,31,1],[69,5,69,6,1],[84,5,84,6,1],[85,9,85,36,1],[87,9,87,16,1],[87,18,87,26,1],[87,27,87,29,1],[87,30,87,35,1],[88,9,88,10,1],[89,13,89,29,1],[90,13,90,93,1],[91,9,91,10,1],[93,9,93,30,1],[94,9,94,10,1],[95,13,99,23,1],[102,9,102,47,0],[103,5,103,6,1],[117,5,117,6,1],[118,9,118,55,1],[120,9,120,21,1],[121,5,121,6,1]]);
+    </script>
+  </body>
+</html>

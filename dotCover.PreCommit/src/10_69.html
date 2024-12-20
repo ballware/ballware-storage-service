@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/frank/Documents/GitHub/ballware-storage-service/test/Ballware.Storage.Service.Tests/Helper/MockableBaseTest.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+
+namespace Ballware.Storage.Service.Tests.Helper;
+
+public class MockableBaseTest
+{
+    private MockableWebApplicationFactory WebApplicationFactory { get; set; }
+    protected MockedServicesRepository? MockedServices { get; set; }
+
+    protected Guid UserSubject { get; set; } = Guid.NewGuid();
+
+    protected Guid Tenant { get; set; } = Guid.NewGuid();
+
+    protected string Scope { get; set; } = &quot;storageApi&quot;;
+
+    [SetUp]
+    public virtual void SetUp()
+    {
+        MockedServices = new MockedServicesRepository();
+        WebApplicationFactory = new MockableWebApplicationFactory(MockedServices);
+    }
+
+    [TearDown]
+    public virtual void TearDown()
+    {
+        WebApplicationFactory.Dispose();
+        MockedServices = null;
+    }
+
+    public HttpClient GetClient() =&gt; WebApplicationFactory.CreateClient();
+
+    public HttpClient GetAuthenticatedClient(IEnumerable&lt;Claim&gt;? additionalClaims = null)
+    {
+        var client = GetClient();
+
+        var claims = new List&lt;Claim&gt;();
+
+        if (additionalClaims != null)
+        {
+            claims.AddRange(additionalClaims);
+        }
+
+        if (null == claims.FirstOrDefault(c =&gt; c.Type == JwtRegisteredClaimNames.Sub))
+        {
+            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, UserSubject.ToString()));
+        }
+
+        if (null == claims.FirstOrDefault(c =&gt; c.Type == &quot;scope&quot;))
+        {
+            claims.Add(new Claim(&quot;scope&quot;, Scope));
+        }
+
+        if (null == claims.FirstOrDefault(c =&gt; c.Type == &quot;tenant&quot;))
+        {
+            claims.Add(new Claim(&quot;tenant&quot;, Tenant.ToString()));
+        }
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(&quot;bearer&quot;, WebApplicationFactory.GenerateToken(claims));
+
+        return client;
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,67,9,71,1],[9,72,9,76,1],[10,58,10,62,1],[10,63,10,67,1],[12,34,12,38,1],[12,39,12,43,0],[12,48,12,62,1],[14,29,14,33,1],[14,34,14,38,0],[14,43,14,57,1],[16,30,16,34,1],[16,35,16,39,0],[16,44,16,56,1],[20,5,20,6,1],[21,9,21,57,1],[22,9,22,83,1],[23,5,23,6,1],[27,5,27,6,1],[28,9,28,41,1],[29,9,29,31,1],[30,5,30,6,1],[32,38,32,74,1],[35,5,35,6,1],[36,9,36,34,1],[38,9,38,40,1],[40,9,40,38,1],[41,9,41,10,0],[42,13,42,47,0],[43,9,43,10,0],[45,9,45,48,1],[45,48,45,85,0],[45,85,45,87,1],[46,9,46,10,1],[47,13,47,88,1],[48,9,48,10,1],[50,9,50,48,1],[50,48,50,65,1],[50,65,50,67,1],[51,9,51,10,1],[52,13,52,51,1],[53,9,53,10,1],[55,9,55,48,1],[55,48,55,66,1],[55,66,55,68,1],[56,9,56,10,1],[57,13,57,64,1],[58,9,58,10,1],[60,9,60,139,1],[62,9,62,23,1],[63,5,63,6,1]]);
+    </script>
+  </body>
+</html>

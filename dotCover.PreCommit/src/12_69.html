@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/frank/Documents/GitHub/ballware-storage-service/test/Ballware.Storage.Service.Tests/Helper/MockedServicesRepository.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+namespace Ballware.Storage.Service.Tests.Helper;
+
+public class MockedServicesRepository
+{
+    private Dictionary&lt;Type, (Type, object)&gt; Services { get; } = new Dictionary&lt;Type, (Type, object)&gt;();
+
+    public IEnumerable&lt;(Type, object)&gt; GetMocks()
+    {
+        return Services.Values;
+    }
+
+    public void AddMock&lt;T&gt;(object v)
+    {
+        Services[typeof(T)] = (typeof(T), v);
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[5,57,5,61,1],[5,66,5,104,1],[8,5,8,6,1],[9,9,9,32,1],[10,5,10,6,1],[13,5,13,6,1],[14,9,14,46,1],[15,5,15,6,1]]);
+    </script>
+  </body>
+</html>

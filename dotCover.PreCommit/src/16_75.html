@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/frank/Documents/GitHub/ballware-storage-service/src/Ballware.Storage.Service/Configuration/AuthorizationOptions.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.ComponentModel.DataAnnotations;
+
+namespace Ballware.Storage.Service.Configuration;
+
+public class AuthorizationOptions
+{
+    [Required]
+    public required string Authority { get; set; }
+
+    [Required]
+    public required string Audience { get; set; }
+    public bool RequireHttpsMetadata { get; set; } = true;
+    public string RequiredScopes { get; set; } = &quot;openid storageApi&quot;;
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,40,8,44,1],[8,45,8,49,1],[11,39,11,43,1],[11,44,11,48,1],[12,40,12,44,1],[12,45,12,49,1],[12,54,12,58,1],[13,36,13,40,1],[13,41,13,45,1],[13,50,13,69,1]]);
+    </script>
+  </body>
+</html>

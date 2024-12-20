@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/frank/Documents/GitHub/ballware-storage-service/src/Ballware.Storage.Service/Startup.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Ballware.Storage.Azure;
+using Ballware.Storage.Service.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
+
+namespace Ballware.Storage.Service;
+
+public class Startup(IWebHostEnvironment environment, ConfigurationManager configuration, IServiceCollection services)
+{
+    private IWebHostEnvironment Environment { get; } = environment;
+    private ConfigurationManager Configuration { get; } = configuration;
+    private IServiceCollection Services { get; } = services;
+
+    public void InitializeServices()
+    {
+        CorsOptions? corsOptions = Configuration.GetSection(&quot;Cors&quot;).Get&lt;CorsOptions&gt;();
+        AuthorizationOptions? authorizationOptions = Configuration.GetSection(&quot;Authorization&quot;).Get&lt;AuthorizationOptions&gt;();
+        StorageOptions? storageOptions = Configuration.GetSection(&quot;Storage&quot;).Get&lt;StorageOptions&gt;();
+        SwaggerOptions? swaggerOptions = Configuration.GetSection(&quot;Swagger&quot;).Get&lt;SwaggerOptions&gt;();
+
+        Services.AddOptionsWithValidateOnStart&lt;AuthorizationOptions&gt;()
+            .Bind(Configuration.GetSection(&quot;Authorization&quot;))
+            .ValidateDataAnnotations();
+
+        Services.AddOptionsWithValidateOnStart&lt;StorageOptions&gt;()
+            .Bind(Configuration.GetSection(&quot;Storage&quot;))
+            .ValidateDataAnnotations();
+
+        Services.AddOptionsWithValidateOnStart&lt;SwaggerOptions&gt;()
+            .Bind(Configuration.GetSection(&quot;Swagger&quot;))
+            .ValidateDataAnnotations();
+
+        if (authorizationOptions == null || storageOptions == null)
+        {
+            throw new ConfigurationException(&quot;Required configuration for authorization and storage is missing&quot;);
+        }
+
+        Services.AddAuthentication(options =&gt;
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =&gt;
+        {
+            options.MapInboundClaims = false;
+            options.Authority = authorizationOptions.Authority;
+            options.Audience = authorizationOptions.Audience;
+            options.RequireHttpsMetadata = authorizationOptions.RequireHttpsMetadata;
+            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+            {
+                ValidIssuer = authorizationOptions.Authority
+            };
+        });
+
+        Services.AddAuthorizationBuilder()
+            .AddPolicy(&quot;storageApi&quot;,
+            policy =&gt; policy.RequireClaim(&quot;scope&quot;, authorizationOptions.RequiredScopes.Split(&quot; &quot;)));
+
+        if (corsOptions != null)
+        {
+            Services.AddCors(options =&gt;
+            {
+                options.AddDefaultPolicy(c =&gt;
+                {
+                    c.WithOrigins(corsOptions.AllowedOrigins)
+                        .WithMethods(corsOptions.AllowedMethods)
+                        .WithHeaders(corsOptions.AllowedHeaders);
+                });
+            });
+        }
+
+        Services.AddHttpContextAccessor();
+
+        Services.AddMvcCore()
+            .AddJsonOptions(opts =&gt; opts.JsonSerializerOptions.PropertyNamingPolicy = null)
+            .AddNewtonsoftJson(opts =&gt; opts.SerializerSettings.ContractResolver = new DefaultContractResolver())
+            .AddApiExplorer();
+
+        Services.AddControllers()
+            .AddJsonOptions(opts =&gt; opts.JsonSerializerOptions.PropertyNamingPolicy = null)
+            .AddNewtonsoftJson(opts =&gt; opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
+
+        Services.AddBallwareAzureFileStorageShare(
+            storageOptions.ConnectionString,
+            storageOptions.Share);
+
+        if (swaggerOptions != null)
+        {
+            Services.AddSwaggerGen(c =&gt;
+            {
+                c.SwaggerDoc(&quot;storage&quot;, new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = &quot;ballware Storage API&quot;,
+                    Version = &quot;v1&quot;
+                });
+
+                c.EnableAnnotations();
+
+                c.AddSecurityDefinition(&quot;oidc&quot;, new OpenApiSecurityScheme
+                {
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.OpenIdConnect,
+                    OpenIdConnectUrl = new Uri(authorizationOptions.Authority + &quot;/.well-known/openid-configuration&quot;)
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = &quot;oidc&quot; }
+                        },
+                        authorizationOptions.RequiredScopes.Split(&quot; &quot;)
+                    }
+                });
+            });
+
+            Services.AddSwaggerGenNewtonsoftSupport();
+        }
+    }
+
+    public void InitializeApp(WebApplication app)
+    {
+        if (Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            IdentityModelEventSource.ShowPII = true;
+        }
+
+        app.UseCors();
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.MapControllers();
+
+        var authorizationOptions = app.Services.GetService&lt;IOptions&lt;AuthorizationOptions&gt;&gt;()?.Value;
+        var swaggerOptions = app.Services.GetService&lt;IOptions&lt;SwaggerOptions&gt;&gt;()?.Value;
+
+        if (swaggerOptions != null &amp;&amp; authorizationOptions != null)
+        {
+            app.MapSwagger();
+
+            app.UseSwagger();
+
+            if (swaggerOptions.EnableClient)
+            {
+                app.UseSwaggerUI(c =&gt;
+                {
+                    c.SwaggerEndpoint(&quot;storage/swagger.json&quot;, &quot;ballware Storage API&quot;);
+                    c.OAuthClientId(swaggerOptions.ClientId);
+                    c.OAuthClientSecret(swaggerOptions.ClientSecret);
+                    c.OAuthScopes(authorizationOptions.RequiredScopes?.Split(&quot; &quot;));
+                    c.OAuthUsePkce();
+                });
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,14,11,119,1],[13,47,13,51,1],[13,56,13,67,1],[14,50,14,54,1],[14,59,14,72,1],[15,43,15,47,1],[15,52,15,60,1],[18,5,18,6,1],[19,9,19,88,1],[20,9,20,124,1],[21,9,21,100,1],[22,9,22,100,1],[24,9,26,40,1],[28,9,30,40,1],[32,9,34,40,1],[36,9,36,68,1],[37,9,37,10,1],[38,13,38,113,1],[41,9,42,9,1],[42,9,42,10,1],[42,10,43,13,1],[43,13,43,88,1],[43,88,44,13,1],[44,13,44,85,1],[44,85,45,9,1],[45,9,45,10,1],[45,10,46,9,1],[46,9,46,10,1],[46,10,47,13,1],[47,13,47,46,1],[47,46,48,13,1],[48,13,48,64,1],[48,64,49,13,1],[49,13,49,62,1],[49,62,50,13,1],[50,13,50,86,1],[50,86,51,13,1],[51,13,54,15,1],[54,15,55,9,1],[55,9,55,10,1],[55,10,55,12,1],[57,9,59,23,1],[59,23,59,99,1],[59,99,59,101,1],[61,9,61,33,1],[62,9,62,10,1],[63,13,64,13,1],[64,13,64,14,0],[64,14,65,17,1],[65,17,66,17,0],[66,17,66,18,0],[66,18,67,21,0],[67,21,69,66,0],[69,66,70,17,0],[70,17,70,18,0],[70,18,70,20,0],[70,20,71,13,1],[71,13,71,14,0],[71,14,71,16,1],[72,9,72,10,1],[74,9,74,43,1],[76,9,77,37,1],[77,37,77,91,1],[77,91,78,40,1],[78,40,78,112,1],[78,112,79,31,1],[81,9,82,37,1],[82,37,82,91,1],[82,91,83,40,1],[83,40,83,112,1],[83,112,83,114,1],[85,9,87,35,1],[89,9,89,36,1],[90,9,90,10,1],[91,13,92,13,1],[92,13,92,14,1],[92,14,93,17,1],[93,17,97,20,1],[97,20,99,17,1],[99,17,99,39,1],[99,39,101,17,1],[101,17,105,20,1],[105,20,107,17,1],[107,17,115,20,1],[115,20,116,13,1],[116,13,116,14,1],[116,14,116,16,1],[118,13,118,55,1],[119,9,119,10,1],[120,5,120,6,1],[123,5,123,6,1],[124,9,124,41,1],[125,9,125,10,0],[126,13,126,45,0],[127,13,127,53,0],[128,9,128,10,0],[130,9,130,23,1],[131,9,131,26,1],[133,9,133,32,1],[135,9,135,30,1],[137,9,137,101,1],[138,9,138,89,1],[140,9,140,68,1],[141,9,141,10,1],[142,13,142,30,1],[144,13,144,30,1],[146,13,146,45,1],[147,13,147,14,1],[148,17,149,17,1],[149,17,149,18,1],[149,18,150,21,1],[150,21,150,87,1],[150,87,151,21,1],[151,21,151,62,1],[151,62,152,21,1],[152,21,152,70,1],[152,70,153,21,1],[153,21,153,84,1],[153,84,154,21,1],[154,21,154,38,1],[154,38,155,17,1],[155,17,155,18,1],[155,18,155,20,1],[156,13,156,14,1],[157,9,157,10,1],[158,5,158,6,1]]);
+    </script>
+  </body>
+</html>

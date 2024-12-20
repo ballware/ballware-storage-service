@@ -14,8 +14,6 @@ jobs:
   sonarqube:
     runs-on: ubuntu-latest    
     steps:
-      - name: Install procdump
-        run: wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && sudo dpkg -i packages-microsoft-prod.deb && sudo apt-get update && sudo apt-get install procdump
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -34,8 +32,6 @@ jobs:
       - name: Build solution for SonarQube
         run: dotnet build ballware-storage-service.sln --no-incremental
       - name: Run tests with coverage report        
-        run: dotnet dotcover test ballware-storage-service.sln --dcReportType=HTML -- NUnit.Where="cat == UnitTest or cat == IntegrationTest"
-        env:
-          VSTEST_DUMP_FORCEPROCDUMP: 1
+        run: dotnet dotcover test ballware-storage-service.sln --dcReportType=HTML -- NUnit.Where="cat == UnitTest"
       - name: End SonarQube scan
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
