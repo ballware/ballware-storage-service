@@ -21,4 +21,10 @@
       <ProjectReference Include="..\Ballware.Storage.Provider\Ballware.Storage.Provider.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="appsettings.IntegrationTesting.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
