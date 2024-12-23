@@ -28,10 +28,10 @@ jobs:
       - name: Install dotCover
         run: dotnet tool install --global JetBrains.dotCover.GlobalTool
       - name: Start SonarQube scan
-        run: dotnet sonarscanner begin /k:"ballware_ballware-storage-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths="dotCover.PreCommit.html,dotCover.Output.html"
+        run: dotnet sonarscanner begin /k:"ballware_ballware-storage-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths="dotCover.Output.html"
       - name: Build solution for SonarQube
         run: dotnet build ballware-storage-service.sln --no-incremental
       - name: Run tests with coverage report        
-        run: dotnet dotcover test ballware-storage-service.sln --dcReportType=HTML -- NUnit.Where="cat == UnitTest"
+        run: dotnet dotcover test ballware-storage-service.sln --dcReportType=HTML
       - name: End SonarQube scan
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
