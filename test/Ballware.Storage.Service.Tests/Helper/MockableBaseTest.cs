@@ -29,9 +29,9 @@ public class MockableBaseTest
         MockedServices = null;
     }
 
-    public HttpClient GetClient() => WebApplicationFactory.CreateClient();
+    protected HttpClient GetClient() => WebApplicationFactory.CreateClient();
 
-    public HttpClient GetAuthenticatedClient(IEnumerable<Claim>? additionalClaims = null)
+    protected HttpClient GetAuthenticatedClient(IEnumerable<Claim>? additionalClaims = null)
     {
         var client = GetClient();
 

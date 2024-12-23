@@ -84,8 +84,12 @@ public class FileControllerTest : MockableBaseTest
 
         var response = await GetClient().GetAsync($"/api/file/byname/{owner}?file=File1");
 
-        Assert.That(response.IsSuccessStatusCode, Is.True);
-        Assert.That(response.Content, Is.TypeOf<StreamContent>());
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.IsSuccessStatusCode, Is.True);
+            Assert.That(response.Content, Is.TypeOf<StreamContent>());
+        });
+
         var actualStream = await response.Content.ReadAsStreamAsync();
 
         Assert.That(actualStream.Length, Is.EqualTo(expectedLength));

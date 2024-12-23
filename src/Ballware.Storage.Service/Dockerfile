@@ -17,6 +17,7 @@ FROM build AS publish
 RUN dotnet publish "Ballware.Storage.Service.csproj" -c Release -o /app/publish
 
 FROM base AS final
+USER app
 WORKDIR /app
 COPY --from=publish /app/publish .
 
