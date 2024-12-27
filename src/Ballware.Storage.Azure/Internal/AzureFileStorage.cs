@@ -78,6 +78,7 @@ class AzureFileStorage : IFileStorage
 
         if (!await fileRef.ExistsAsync())
         {
+            await fileRef.CreateAsync(content.Length);
             await fileRef.UploadAsync(content);
         }
     }

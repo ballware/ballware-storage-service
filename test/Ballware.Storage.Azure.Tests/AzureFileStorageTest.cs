@@ -141,6 +141,7 @@ public class AzureFileStorageTest
 
         await subject.UploadFileAsync("fake_owner", "requested_file", expectedFileContentStream);
 
+        fileClientMock.Verify(c => c.CreateAsync(expectedFileContentStream.Length, It.IsAny<ShareFileCreateOptions>(), It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
         fileClientMock.Verify(c => c.UploadAsync(expectedFileContentStream, It.IsAny<ShareFileUploadOptions>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -164,6 +165,7 @@ public class AzureFileStorageTest
 
         await subject.UploadFileAsync("fake_owner", "requested_file", expectedFileContentStream);
 
+        fileClientMock.Verify(c => c.CreateAsync(expectedFileContentStream.Length, It.IsAny<ShareFileCreateOptions>(), It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
         fileClientMock.Verify(c => c.UploadAsync(expectedFileContentStream, It.IsAny<ShareFileUploadOptions>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
