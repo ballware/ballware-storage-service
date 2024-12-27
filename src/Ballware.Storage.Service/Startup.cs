@@ -56,7 +56,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddAuthorizationBuilder()
             .AddPolicy("storageApi",
-            policy => policy.RequireClaim("scope", authorizationOptions.RequiredScopes.Split(" ")));
+            policy => policy.RequireAssertion(context =>
+                context.User
+                    .Claims
+                    .Where(c => "scope" == c.Type)
+                    .SelectMany(c => c.Value.Split(' '))
+                    .Any(s => authorizationOptions.RequiredScopes
+                        .Split(" ").Contains(s, StringComparer.Ordinal))));
 
         if (corsOptions != null)
         {
