@@ -9,7 +9,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBallwareAzureFileStorageShare(this IServiceCollection services,
         string connectionString, string shareName)
     {
-        services.AddSingleton<IFileStorage>(new AzureFileStorage(connectionString, shareName));
+        services.AddSingleton<IShareClientFactory>(new DefaultShareClientFactory());
+        services.AddSingleton<IFileStorage>(provider => new AzureFileStorage(provider.GetService<IShareClientFactory>() ?? throw new InvalidOperationException("IShareClientFactory needed"), connectionString, shareName));
 
         return services;
     }

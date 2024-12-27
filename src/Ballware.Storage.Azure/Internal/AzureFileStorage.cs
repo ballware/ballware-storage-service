@@ -1,30 +1,25 @@
 ﻿using Ballware.Storage.Provider;
-using Azure.Storage.Files.Shares;
 
 namespace Ballware.Storage.Azure.Internal;
 
 class AzureFileStorage : IFileStorage
 {
-    private static ShareClient GetFileShare(string connectionString, string shareName)
-    {
-        return new ShareClient(connectionString, shareName);
-    }
-
+    private IShareClientFactory ClientFactory { get; }
     private string ConnectionString { get; }
     private string Share { get; }
 
-    public AzureFileStorage(string connectionString, string share)
+    public AzureFileStorage(IShareClientFactory clientFactory, string connectionString, string share)
     {
+        ClientFactory = clientFactory;
         ConnectionString = connectionString;
         Share = share;
     }
 
-    public virtual async Task<IEnumerable<FileMetadata>> EnumerateFilesAsync(string owner)
+    public async Task<IEnumerable<FileMetadata>> EnumerateFilesAsync(string owner)
     {
-
         var files = new List<FileMetadata>();
 
-        var share = GetFileShare(ConnectionString, Share);
+        var share = ClientFactory.GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
             share.GetDirectoryClient(owner);
@@ -45,9 +40,9 @@ class AzureFileStorage : IFileStorage
         return files;
     }
 
-    public virtual async Task<Stream?> OpenFileAsync(string owner, string fileName)
+    public async Task<Stream?> OpenFileAsync(string owner, string fileName)
     {
-        var share = GetFileShare(ConnectionString, Share);
+        var share = ClientFactory.GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
             share.GetDirectoryClient(owner);
@@ -69,10 +64,9 @@ class AzureFileStorage : IFileStorage
         return null;
     }
 
-    public virtual async Task UploadFileAsync(string owner, string fileName, Stream content)
+    public async Task UploadFileAsync(string owner, string fileName, Stream content)
     {
-
-        var share = GetFileShare(ConnectionString, Share);
+        var share = ClientFactory.GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
             share.GetDirectoryClient(owner);
@@ -88,9 +82,9 @@ class AzureFileStorage : IFileStorage
         }
     }
 
-    public virtual async Task DropFileAsync(string owner, string fileName)
+    public async Task DropFileAsync(string owner, string fileName)
     {
-        var share = GetFileShare(ConnectionString, Share);
+        var share = ClientFactory.GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
             share.GetDirectoryClient(owner);
@@ -105,10 +99,9 @@ class AzureFileStorage : IFileStorage
         await fileRef.DeleteIfExistsAsync();
     }
 
-    public virtual async Task DropAllAsync(string owner)
+    public async Task DropAllAsync(string owner)
     {
-
-        var share = GetFileShare(ConnectionString, Share);
+        var share = ClientFactory.GetFileShare(ConnectionString, Share);
 
         var contextDirectory =
             share.GetDirectoryClient(owner);
