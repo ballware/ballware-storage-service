@@ -1,11 +1,18 @@
 using Ballware.Storage.Service;
 using Ballware.Storage.Service.Configuration;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
 var environment = builder.Environment;
 
+builder.Host.UseSerilog();
 builder.Services.Configure<KestrelServerOptions>(builder.Configuration.GetSection("Kestrel"));
 
 builder.Configuration.Sources.Clear();
@@ -27,6 +34,8 @@ catch (ConfigurationException ex)
 }
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 startup.InitializeApp(app);
 
