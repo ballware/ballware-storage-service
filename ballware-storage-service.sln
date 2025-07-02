@@ -10,6 +10,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Service.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Azure.Tests", "test\Ballware.Storage.Azure.Tests\Ballware.Storage.Azure.Tests.csproj", "{276F7FA8-53CF-427C-AEFE-BE8B51114C30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data", "src\Ballware.Storage.Data\Ballware.Storage.Data.csproj", "{157A87B1-2B66-4A8F-9B67-137B20B96F24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef", "src\Ballware.Storage.Data.Ef\Ballware.Storage.Data.Ef.csproj", "{1520FC96-011B-4D8D-8300-FC418720F6BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.SqlServer", "src\Ballware.Storage.Data.Ef.SqlServer\Ballware.Storage.Data.Ef.SqlServer.csproj", "{B5EF552A-86ED-40BE-AD0A-A1AB7418CE68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.SqlServer.Tests", "test\Ballware.Storage.Data.Ef.SqlServer.Tests\Ballware.Storage.Data.Ef.SqlServer.Tests.csproj", "{69624396-B65A-4B6C-9F1D-BF787F9BF323}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +44,21 @@ Global
 		{276F7FA8-53CF-427C-AEFE-BE8B51114C30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{276F7FA8-53CF-427C-AEFE-BE8B51114C30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{276F7FA8-53CF-427C-AEFE-BE8B51114C30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{157A87B1-2B66-4A8F-9B67-137B20B96F24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{157A87B1-2B66-4A8F-9B67-137B20B96F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{157A87B1-2B66-4A8F-9B67-137B20B96F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{157A87B1-2B66-4A8F-9B67-137B20B96F24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1520FC96-011B-4D8D-8300-FC418720F6BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1520FC96-011B-4D8D-8300-FC418720F6BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1520FC96-011B-4D8D-8300-FC418720F6BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1520FC96-011B-4D8D-8300-FC418720F6BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5EF552A-86ED-40BE-AD0A-A1AB7418CE68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5EF552A-86ED-40BE-AD0A-A1AB7418CE68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5EF552A-86ED-40BE-AD0A-A1AB7418CE68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5EF552A-86ED-40BE-AD0A-A1AB7418CE68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69624396-B65A-4B6C-9F1D-BF787F9BF323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69624396-B65A-4B6C-9F1D-BF787F9BF323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69624396-B65A-4B6C-9F1D-BF787F9BF323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69624396-B65A-4B6C-9F1D-BF787F9BF323}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,7 @@
 using Ballware.Storage.Azure;
+using Ballware.Storage.Data.Ef;
+using Ballware.Storage.Data.Ef.Configuration;
+using Ballware.Storage.Data.Ef.SqlServer;
 using Ballware.Storage.Service.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -18,13 +21,20 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
     {
         CorsOptions? corsOptions = Configuration.GetSection("Cors").Get<CorsOptions>();
         AuthorizationOptions? authorizationOptions = Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
+        MetaStorageOptions? metaStorageOptions = Configuration.GetSection("Meta").Get<MetaStorageOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
 
+        var metaStorageConnectionString = Configuration.GetConnectionString("MetaStorageConnection");
+        
         Services.AddOptionsWithValidateOnStart<AuthorizationOptions>()
             .Bind(Configuration.GetSection("Authorization"))
             .ValidateDataAnnotations();
 
+        Services.AddOptionsWithValidateOnStart<MetaStorageOptions>()
+            .Bind(Configuration.GetSection("Meta"))
+            .ValidateDataAnnotations();
+        
         Services.AddOptionsWithValidateOnStart<StorageOptions>()
             .Bind(Configuration.GetSection("Storage"))
             .ValidateDataAnnotations();
@@ -33,7 +43,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("Swagger"))
             .ValidateDataAnnotations();
 
-        if (authorizationOptions == null || storageOptions == null)
+        if (authorizationOptions == null || storageOptions == null || metaStorageOptions == null || string.IsNullOrEmpty(metaStorageConnectionString))
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
@@ -88,6 +98,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
             .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
+        Services.AddAutoMapper(config =>
+        {
+            config.AddBallwareMetaStorageMappings();
+        });
+        
+        Services.AddBallwareMetaStorageForSqlServer(metaStorageOptions, metaStorageConnectionString);
+        
         Services.AddBallwareAzureFileStorageShare(
             storageOptions.ConnectionString,
             storageOptions.Share);
