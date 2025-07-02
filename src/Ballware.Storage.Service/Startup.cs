@@ -1,7 +1,11 @@
+using Ballware.Storage.Api.Endpoints;
+using Ballware.Storage.Authorization;
 using Ballware.Storage.Azure;
 using Ballware.Storage.Data.Ef;
 using Ballware.Storage.Data.Ef.Configuration;
 using Ballware.Storage.Data.Ef.SqlServer;
+using Ballware.Storage.Provider.Azure;
+using Ballware.Storage.Provider.Azure.Configuration;
 using Ballware.Storage.Service.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -23,6 +27,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions = Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         MetaStorageOptions? metaStorageOptions = Configuration.GetSection("Meta").Get<MetaStorageOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        AzureStorageOptions? azureStorageOptions = Configuration.GetSection("AzureStorage").Get<AzureStorageOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
 
         var metaStorageConnectionString = Configuration.GetConnectionString("MetaStorageConnection");
@@ -43,6 +48,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("Swagger"))
             .ValidateDataAnnotations();
 
+        if (azureStorageOptions != null)
+        {
+            Services.AddOptionsWithValidateOnStart<AzureStorageOptions>()
+                .Bind(Configuration.GetSection("AzureStorage"))
+                .ValidateDataAnnotations();
+        }
+        
         if (authorizationOptions == null || storageOptions == null || metaStorageOptions == null || string.IsNullOrEmpty(metaStorageConnectionString))
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
@@ -102,12 +114,20 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             config.AddBallwareMetaStorageMappings();
         });
-        
+
+        Services.AddBallwareStorageAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareMetaStorageForSqlServer(metaStorageOptions, metaStorageConnectionString);
+
+        if (azureStorageOptions != null)
+        {
+            Services.AddBallwareAzureBlobStorage(azureStorageOptions);    
+        }
         
         Services.AddBallwareAzureFileStorageShare(
             storageOptions.ConnectionString,
             storageOptions.Share);
+        
+        Services.AddEndpointsApiExplorer();
 
         if (swaggerOptions != null)
         {
@@ -156,6 +176,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.UseAuthorization();
 
         app.MapControllers();
+        
+        app.MapAttachmentUserApi("attachment");
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;

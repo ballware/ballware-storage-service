@@ -15,6 +15,7 @@ public class StorageModelBaseCustomizer : RelationalModelCustomizer
         modelBuilder.Entity<Persistables.Attachment>().HasKey(d => d.Id);
         modelBuilder.Entity<Persistables.Attachment>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<Persistables.Attachment>().HasIndex(d => d.TenantId);
+        modelBuilder.Entity<Persistables.Attachment>().HasIndex(d => new { d.TenantId, d.Entity, d.OwnerId, d.FileName }).IsUnique();
         
         modelBuilder.Entity<Persistables.Temporary>().HasKey(d => d.Id);
         modelBuilder.Entity<Persistables.Temporary>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();

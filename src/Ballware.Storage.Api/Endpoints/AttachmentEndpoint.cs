@@ -1,0 +1,155 @@
+using System.Security.Claims;
+using Ballware.Storage.Authorization;
+using Ballware.Storage.Data.Public;
+using Ballware.Storage.Data.Repository;
+using Ballware.Storage.Metadata;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+
+namespace Ballware.Storage.Api.Endpoints;
+
+public static class AttachmentEndpoint
+{
+    private const string AttachmentPrimaryQuery = "primary";
+    private const string ApiTag = "Attachment";
+    private const string ApiOperationPrefix = "Attachment";
+    
+    public static IEndpointRouteBuilder MapAttachmentUserApi(this IEndpointRouteBuilder app, 
+        string basePath,
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
+        string authorizationScope = "storageApi",
+        string apiGroup = "storage")
+    {
+        app.MapGet(basePath + "/allforentityandowner/{entity}/{ownerId}", HandleAllForEntityAndOwnerAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<Attachment>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "AllForEntityAndOwner")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query attachments for entity and owner");
+        
+        app.MapGet(basePath + "/downloadforentityandownerbyid/{entity}/{ownerId}/{id}", HandleDownloadForEntityAndOwnerByIdAsync)
+            .Produces<IEnumerable<Attachment>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "DownloadForEntityAndOwnerById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Download attachment for entity and owner by ID");
+        
+        app.MapPost(basePath + "/uploadforentityandowner/{entity}/{ownerId}", HandleUploadForEntityAndOwnerAsync)
+            .RequireAuthorization(authorizationScope)
+            .DisableAntiforgery()
+            .Produces(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "UploadForEntityAndOwner")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Upload attachment for entity and owner");
+        
+        app.MapDelete(basePath + "/dropforentityandownerbyid/{entity}/{ownerId}/{id}", HandleDropForEntityAndOwnerByIdAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces( StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "DropForEntityAndOwnerById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Drop attachment for entity and owner by ID");
+        
+        return app;
+    }
+
+    public static IEndpointRouteBuilder MapAttachmentServiceApi(this IEndpointRouteBuilder app,
+        string basePath,
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
+        string authorizationScope = "serviceApi",
+        string apiGroup = "storage")
+    {   
+        return app;
+    }
+    
+    private static async Task<IResult> HandleAllForEntityAndOwnerAsync(IPrincipalUtils principalUtils, IAttachmentRepository repository, ClaimsPrincipal user, string entity, Guid ownerId)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+        
+        return Results.Ok(await repository.AllByEntityAndOwnerIdAsync(tenantId, entity, ownerId));
+    }
+    
+    private static async Task<IResult> HandleUploadForEntityAndOwnerAsync(IPrincipalUtils principalUtils, IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, ClaimsPrincipal user, string entity, Guid ownerId, IFormFileCollection files)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+        var userId = principalUtils.GetUserId(user);
+        var claims = principalUtils.GetUserClaims(user);
+        
+        foreach (var file in files)
+        {
+            var storagePath = await storageProvider.UploadForEntityAndOwnerAsync(tenantId, entity, ownerId, file.FileName, file.ContentType, file.OpenReadStream());
+            
+            var attachment = await repository.SingeByEntityOwnerAndFileNameAsync(tenantId, entity, ownerId, file.FileName);
+
+            if (attachment == null)
+            {
+                attachment = await repository.NewAsync(tenantId, AttachmentPrimaryQuery, claims);
+            }
+            
+            attachment.Entity = entity;
+            attachment.OwnerId = ownerId;
+            attachment.FileName = file.FileName;
+            attachment.ContentType = file.ContentType;
+            attachment.FileSize = file.Length;
+            attachment.StoragePath = storagePath;
+
+            await repository.SaveAsync(tenantId, userId, AttachmentPrimaryQuery, claims, attachment);
+        }
+
+        return Results.Created();
+    }
+    
+    private static async Task<IResult> HandleDownloadForEntityAndOwnerByIdAsync(IPrincipalUtils principalUtils, IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, ClaimsPrincipal user, string entity, Guid ownerId, Guid id)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+        var claims = principalUtils.GetUserClaims(user);
+        
+        var attachment = await repository.ByIdAsync(tenantId, AttachmentPrimaryQuery, claims, id);
+        
+        if (attachment == null || String.IsNullOrEmpty(attachment.StoragePath))
+        {
+            return Results.NotFound($"Attachment with ID {id} not found for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        var fileContent = await storageProvider.DownloadForEntityAndOwnerByPathAsync(tenantId, entity, ownerId, attachment.StoragePath);
+        
+        if (fileContent == null)
+        {
+            return Results.NotFound($"File not found for attachment with ID {id} for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        return Results.File(fileContent, attachment.ContentType, attachment.FileName);
+    }
+    
+    private static async Task<IResult> HandleDropForEntityAndOwnerByIdAsync(IPrincipalUtils principalUtils, IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, ClaimsPrincipal user, string entity, Guid ownerId, Guid id)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+        var userId = principalUtils.GetUserId(user);
+        var claims = principalUtils.GetUserClaims(user);
+        
+        var attachment = await repository.ByIdAsync(tenantId, AttachmentPrimaryQuery, claims, id);
+        
+        if (attachment == null || String.IsNullOrEmpty(attachment.StoragePath))
+        {
+            return Results.NotFound($"Attachment with ID {id} not found for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        await storageProvider.DropForEntityAndOwnerByPathAsync(tenantId, entity, ownerId, attachment.StoragePath);
+        
+        await repository.RemoveAsync(tenantId, userId, claims, new Dictionary<string, object>()
+        {
+            { "Id", id }
+        });
+        
+        return Results.Ok();
+    }
+}

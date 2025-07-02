@@ -107,7 +107,7 @@ public class AttachmentRepositoryTest : RepositoryBaseTest
         var actualTenantItemsCount = await repository.CountAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         var actualTenantAllItems = await repository.AllAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
         var actualTenantQueryItems = await repository.QueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
-        var actualOwnerItems = await repository.GetAllByEntityAndOwnerId(TenantId, "fake_entity", fakeOwnerId);
+        var actualOwnerItems = await repository.AllByEntityAndOwnerIdAsync(TenantId, "fake_entity", fakeOwnerId);
 
         Assert.Multiple(() =>
         {
@@ -152,7 +152,7 @@ public class AttachmentRepositoryTest : RepositoryBaseTest
         var actualTenantItemsCount = await repository.CountAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         var actualTenantAllItems = await repository.AllAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
         var actualTenantQueryItems = await repository.QueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
-        var actualOwnerItems = await repository.GetAllByEntityAndOwnerId(TenantId, "fake_entity", fakeOwnerId);
+        var actualOwnerItems = await repository.AllByEntityAndOwnerIdAsync(TenantId, "fake_entity", fakeOwnerId);
         
         Assert.Multiple(() =>
         {

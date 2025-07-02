@@ -11,10 +11,18 @@ public class AttachmentBaseRepository : TenantableBaseRepository<Public.Attachme
     {
     }
 
-    public async Task<IEnumerable<Attachment>> GetAllByEntityAndOwnerId(Guid tenantId, string entity, Guid ownerId)
+    public async Task<IEnumerable<Attachment>> AllByEntityAndOwnerIdAsync(Guid tenantId, string entity, Guid ownerId)
     {
         return await Context.Attachments.Where(a => a.TenantId == tenantId && a.Entity == entity && a.OwnerId == ownerId)
             .ToListAsync()
             .ContinueWith(t => Mapper.Map<IEnumerable<Attachment>>(t.Result));
+    }
+
+    public async Task<Attachment?> SingeByEntityOwnerAndFileNameAsync(Guid tenantId, string entity, Guid ownerId, string fileName)
+    {
+        return await Context.Attachments
+            .Where(a => a.TenantId == tenantId && a.Entity == entity && a.OwnerId == ownerId && a.FileName == fileName)
+            .FirstOrDefaultAsync()
+            .ContinueWith(t => Mapper.Map<Attachment>(t.Result));
     }
 }
