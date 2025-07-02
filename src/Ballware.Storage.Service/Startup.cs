@@ -55,7 +55,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 .ValidateDataAnnotations();
         }
         
-        if (authorizationOptions == null || storageOptions == null || metaStorageOptions == null || string.IsNullOrEmpty(metaStorageConnectionString))
+        if (authorizationOptions == null || storageOptions == null || metaStorageOptions == null)
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
@@ -116,7 +116,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         });
 
         Services.AddBallwareStorageAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
-        Services.AddBallwareMetaStorageForSqlServer(metaStorageOptions, metaStorageConnectionString);
+
+        if (!string.IsNullOrEmpty(metaStorageConnectionString))
+        {
+            Services.AddBallwareMetaStorageForSqlServer(metaStorageOptions, metaStorageConnectionString);    
+        }
 
         if (azureStorageOptions != null)
         {

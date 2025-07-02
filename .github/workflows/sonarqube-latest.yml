@@ -44,6 +44,7 @@ jobs:
       - name: Run coverage for all test projects
         run: |
           mkdir -p coverage
+          export TestSettings__DatabasePassword='${{ secrets.TEST_STORAGE_PASSWORD }}'
           i=0
           find ./test -name '*.Tests.csproj' | while read project; do
             echo "Running coverage for: $project"
