@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Api.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Provider.Azure.Tests", "test\Ballware.Storage.Provider.Azure.Tests\Ballware.Storage.Provider.Azure.Tests.csproj", "{4140BA7E-AC7D-45A1-8367-3BB14DEBCC1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Jobs", "src\Ballware.Storage.Jobs\Ballware.Storage.Jobs.csproj", "{51F0707E-1BF4-48EA-A9FE-A1494FB98C8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,9 @@ Global
 		{4140BA7E-AC7D-45A1-8367-3BB14DEBCC1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4140BA7E-AC7D-45A1-8367-3BB14DEBCC1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4140BA7E-AC7D-45A1-8367-3BB14DEBCC1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51F0707E-1BF4-48EA-A9FE-A1494FB98C8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51F0707E-1BF4-48EA-A9FE-A1494FB98C8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51F0707E-1BF4-48EA-A9FE-A1494FB98C8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51F0707E-1BF4-48EA-A9FE-A1494FB98C8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

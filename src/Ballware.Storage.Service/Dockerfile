@@ -11,6 +11,7 @@ COPY ./Ballware.Storage.Authorization ./Ballware.Storage.Authorization
 COPY ./Ballware.Storage.Data ./Ballware.Storage.Data
 COPY ./Ballware.Storage.Data.Ef ./Ballware.Storage.Data.Ef
 COPY ./Ballware.Storage.Data.Ef.SqlServer ./Ballware.Storage.Data.Ef.SqlServer
+COPY ./Ballware.Storage.Jobs ./Ballware.Storage.Jobs
 COPY ./Ballware.Storage.Metadata ./Ballware.Storage.Metadata
 COPY ./Ballware.Storage.Provider.Azure ./Ballware.Storage.Provider.Azure
 COPY ./Ballware.Storage.Service ./Ballware.Storage.Service

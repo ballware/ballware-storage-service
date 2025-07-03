@@ -3,6 +3,8 @@ using Ballware.Storage.Authorization;
 using Ballware.Storage.Data.Ef;
 using Ballware.Storage.Data.Ef.Configuration;
 using Ballware.Storage.Data.Ef.SqlServer;
+using Ballware.Storage.Jobs;
+using Ballware.Storage.Jobs.Configuration;
 using Ballware.Storage.Provider.Azure;
 using Ballware.Storage.Provider.Azure.Configuration;
 using Ballware.Storage.Service.Configuration;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
+using Quartz;
 
 namespace Ballware.Storage.Service;
 
@@ -26,6 +29,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions = Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         MetaStorageOptions? metaStorageOptions = Configuration.GetSection("Meta").Get<MetaStorageOptions>();
         AzureStorageOptions? azureStorageOptions = Configuration.GetSection("AzureStorage").Get<AzureStorageOptions>();
+        TriggerOptions? triggerOptions = Configuration.GetSection("Trigger").Get<TriggerOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
 
         var metaStorageConnectionString = Configuration.GetConnectionString("MetaStorageConnection");
@@ -38,6 +42,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("Meta"))
             .ValidateDataAnnotations();
 
+        Services.AddOptionsWithValidateOnStart<TriggerOptions>()
+            .Bind(Configuration.GetSection("Trigger"))
+            .ValidateDataAnnotations();
+        
         Services.AddOptionsWithValidateOnStart<SwaggerOptions>()
             .Bind(Configuration.GetSection("Swagger"))
             .ValidateDataAnnotations();
@@ -52,6 +60,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if (authorizationOptions == null || metaStorageOptions == null)
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
+        }
+
+        if (triggerOptions == null)
+        {
+            triggerOptions = new TriggerOptions();
         }
 
         Services.AddAuthentication(options =>
@@ -99,10 +112,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
             .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver())
             .AddApiExplorer();
-
-        Services.AddControllers()
-            .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
-            .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
+        
+        Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
 
         Services.AddAutoMapper(config =>
         {
@@ -120,6 +131,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             Services.AddBallwareAzureBlobStorage(azureStorageOptions);    
         }
+
+        Services.AddBallwareStorageBackgroundJobs(triggerOptions);
         
         Services.AddEndpointsApiExplorer();
 
