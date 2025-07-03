@@ -27,12 +27,10 @@
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Storage.Api\Ballware.Storage.Api.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Authorization\Ballware.Storage.Authorization.csproj" />
-      <ProjectReference Include="..\Ballware.Storage.Azure\Ballware.Storage.Azure.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data.Ef.SqlServer\Ballware.Storage.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data.Ef\Ballware.Storage.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data\Ballware.Storage.Data.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Provider.Azure\Ballware.Storage.Provider.Azure.csproj" />
-      <ProjectReference Include="..\Ballware.Storage.Provider\Ballware.Storage.Provider.csproj" />
     </ItemGroup>
 
     <ItemGroup>
