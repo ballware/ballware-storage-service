@@ -32,8 +32,8 @@ public static class AttachmentEndpoint
             .WithSummary("Query attachments for entity and owner");
         
         app.MapGet(basePath + "/downloadforentityandownerbyid/{entity}/{ownerId}/{id}", HandleDownloadForEntityAndOwnerByIdAsync)
-            .Produces<IEnumerable<Attachment>>()
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "DownloadForEntityAndOwnerById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)

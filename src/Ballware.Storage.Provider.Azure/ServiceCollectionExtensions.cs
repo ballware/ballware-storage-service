@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton(options);
         services.AddScoped<IAttachmentStorageProvider, AzureAttachmentStorageProvider>();
+        services.AddScoped<ITemporaryStorageProvider, AzureTemporaryStorageProvider>();
         
         return services;
     }

@@ -182,6 +182,9 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapControllers();
         
         app.MapAttachmentUserApi("attachment");
+        app.MapAttachmentServiceApi("attachment");
+        app.MapTemporaryUserApi("temporary");
+        app.MapTemporaryServiceApi("temporary");
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
