@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
         <SonarQubeExclude>true</SonarQubeExclude>
     </PropertyGroup>
 
@@ -14,6 +15,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.11" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
         <PackageReference Include="Moq" Version="4.20.72" />
         <PackageReference Include="NUnit" Version="4.3.0" />
@@ -23,13 +26,14 @@
         </PackageReference>
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
-    
-    <ItemGroup>
-      <ProjectReference Include="..\..\src\Ballware.Storage.Azure\Ballware.Storage.Azure.csproj" />
-    </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Ballware.Storage.Api\Ballware.Storage.Api.csproj" />
+      <ProjectReference Include="..\..\src\Ballware.Storage.Authorization\Ballware.Storage.Authorization.csproj" />
+    </ItemGroup>
+    
 </Project>
