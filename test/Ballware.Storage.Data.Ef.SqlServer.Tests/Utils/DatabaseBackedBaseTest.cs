@@ -53,12 +53,12 @@ public abstract class DatabaseBackedBaseTest
         await using var conn = new SqlConnection(connectionStringBuilder.ConnectionString);
         await conn.OpenAsync();
 
-        var sql = @"CREATE DATABASE meta;";
+        var sql = @"CREATE DATABASE storage;";
 
         await using var cmd = new SqlCommand(sql, conn);
         await cmd.ExecuteNonQueryAsync();
 
-        connectionStringBuilder.InitialCatalog = "meta";
+        connectionStringBuilder.InitialCatalog = "storage";
         
         MasterConnectionString = connectionStringBuilder.ToString();
     }
