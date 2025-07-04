@@ -16,6 +16,7 @@ COPY ./Ballware.Storage.Provider.Azure ./Ballware.Storage.Provider.Azure
 COPY ./Ballware.Storage.Service ./Ballware.Storage.Service
 
 WORKDIR "/src/Ballware.Storage.Service"
+RUN dotnet restore "Ballware.Storage.Service.csproj" --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/ballware/index.json"
 RUN dotnet build "Ballware.Storage.Service.csproj" -c Release -o /app/build
 
 FROM build AS publish

@@ -39,6 +39,9 @@ jobs:
             /d:sonar.cs.dotcover.reportsPaths="coverage.html" \
             /d:sonar.exclusions="**/Migrations/**/*"
         
+      - name: Restore dependencies
+        run: dotnet restore ballware-storage-service.sln --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/ballware/index.json"        
+        
       - name: Build solution
         run: dotnet build ballware-storage-service.sln --no-incremental --configuration Release
 
