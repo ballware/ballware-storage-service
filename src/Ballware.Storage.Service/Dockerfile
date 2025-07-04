@@ -7,7 +7,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
 WORKDIR /src
 
 COPY ./Ballware.Storage.Api ./Ballware.Storage.Api
-COPY ./Ballware.Storage.Authorization ./Ballware.Storage.Authorization
 COPY ./Ballware.Storage.Data ./Ballware.Storage.Data
 COPY ./Ballware.Storage.Data.Ef ./Ballware.Storage.Data.Ef
 COPY ./Ballware.Storage.Data.Ef.SqlServer ./Ballware.Storage.Data.Ef.SqlServer
