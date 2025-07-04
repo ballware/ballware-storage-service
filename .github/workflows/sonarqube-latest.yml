@@ -40,9 +40,13 @@ jobs:
             /d:sonar.exclusions="**/Migrations/**/*"
         
       - name: Restore dependencies
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet restore ballware-storage-service.sln --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/ballware/index.json"        
+        run: |
+          dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" \
+            --name github \
+            --username frankball \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text
+          dotnet restore ballware-storage-service.sln         
         
       - name: Build solution
         run: dotnet build ballware-storage-service.sln --no-incremental --configuration Release
