@@ -4,6 +4,22 @@ EXPOSE 5000
 EXPOSE 5001
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
+
+ARG GITHUB_PAT
+
+RUN mkdir -p ~/.nuget && \
+    echo '<configuration>\
+            <packageSources>\
+              <add key="github" value="https://nuget.pkg.github.com/ballware/index.json" />\
+            </packageSources>\
+            <packageSourceCredentials>\
+              <github>\
+                <add key="Username" value="frankball" />\
+                <add key="ClearTextPassword" value="'$GITHUB_PAT'" />\
+              </github>\
+            </packageSourceCredentials>\
+          </configuration>' > ~/.nuget/NuGet.Config
+
 WORKDIR /src
 
 COPY ./Ballware.Storage.Api ./Ballware.Storage.Api
@@ -16,7 +32,7 @@ COPY ./Ballware.Storage.Provider.Azure ./Ballware.Storage.Provider.Azure
 COPY ./Ballware.Storage.Service ./Ballware.Storage.Service
 
 WORKDIR "/src/Ballware.Storage.Service"
-RUN dotnet restore "Ballware.Storage.Service.csproj" --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/ballware/index.json"
+RUN dotnet restore "Ballware.Storage.Service.csproj"
 RUN dotnet build "Ballware.Storage.Service.csproj" -c Release -o /app/build
 
 FROM build AS publish
