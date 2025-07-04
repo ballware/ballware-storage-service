@@ -8,6 +8,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+          <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.1" />
           <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
           <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
           <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
@@ -31,7 +32,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Storage.Api\Ballware.Storage.Api.csproj" />
-      <ProjectReference Include="..\Ballware.Storage.Authorization\Ballware.Storage.Authorization.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data.Ef.SqlServer\Ballware.Storage.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data.Ef\Ballware.Storage.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data\Ballware.Storage.Data.csproj" />

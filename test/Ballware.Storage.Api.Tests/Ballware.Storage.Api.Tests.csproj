@@ -11,6 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.1" />
         <PackageReference Include="coverlet.collector" Version="6.0.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -33,7 +34,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Ballware.Storage.Api\Ballware.Storage.Api.csproj" />
-      <ProjectReference Include="..\..\src\Ballware.Storage.Authorization\Ballware.Storage.Authorization.csproj" />
     </ItemGroup>
     
 </Project>

@@ -1,5 +1,5 @@
+using Ballware.Shared.Authorization;
 using Ballware.Storage.Api.Endpoints;
-using Ballware.Storage.Authorization;
 using Ballware.Storage.Data.Ef;
 using Ballware.Storage.Data.Ef.Configuration;
 using Ballware.Storage.Data.Ef.SqlServer;
@@ -120,7 +120,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             config.AddBallwareMetaStorageMappings();
         });
 
-        Services.AddBallwareStorageAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
+        Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
 
         if (!string.IsNullOrEmpty(metaStorageConnectionString))
         {

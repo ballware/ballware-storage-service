@@ -17,9 +17,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ballware.Storage.Authorization\Ballware.Storage.Authorization.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data\Ballware.Storage.Data.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Metadata\Ballware.Storage.Metadata.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.1" />
     </ItemGroup>
     
 </Project>

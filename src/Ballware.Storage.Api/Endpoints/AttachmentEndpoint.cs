@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Ballware.Storage.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Storage.Data.Public;
 using Ballware.Storage.Data.Repository;
 using Ballware.Storage.Metadata;

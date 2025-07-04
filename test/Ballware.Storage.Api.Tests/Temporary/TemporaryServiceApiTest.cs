@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Text;
 using Ballware.Storage.Api.Endpoints;
 using Ballware.Storage.Api.Tests.Utils;
-using Ballware.Storage.Authorization;
 using Ballware.Storage.Data.Repository;
 using Ballware.Storage.Metadata;
 using Microsoft.AspNetCore.Builder;
