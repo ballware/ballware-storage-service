@@ -19,7 +19,7 @@ COPY ./Ballware.Storage.Provider.Azure ./Ballware.Storage.Provider.Azure
 COPY ./Ballware.Storage.Service ./Ballware.Storage.Service
 
 WORKDIR "/src/Ballware.Storage.Service"
-RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username frankball --password $GITHUB_PAT --store-password-in-clear-text
+RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username frankball --password "$GITHUB_PAT" --store-password-in-clear-text
 RUN dotnet restore "Ballware.Storage.Service.csproj"
 RUN dotnet build "Ballware.Storage.Service.csproj" -c Release -o /app/build
 
