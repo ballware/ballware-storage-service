@@ -86,4 +86,44 @@ public class TemporaryRepositoryTest : RepositoryBaseTest
             Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
         });
     }
+    
+    [Test]
+    public async Task Query_tenant_expired_items_succeeds()
+    {
+        using var scope = Application.Services.CreateScope();
+
+        var repository = scope.ServiceProvider.GetRequiredService<ITemporaryRepository>();
+
+        var fakeTenantIds = new[] { Guid.NewGuid(), Guid.NewGuid(), TenantId, Guid.NewGuid() };
+        
+        foreach (var fakeTenant in fakeTenantIds)
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                var fakeValue = await repository.NewAsync(fakeTenant, "primary", ImmutableDictionary<string, object>.Empty);
+
+                fakeValue.ContentType = "text/plain";
+                fakeValue.FileName = $"fake_file_{i}.txt";
+                fakeValue.FileSize = 128;
+                fakeValue.StoragePath = $"{TenantId}/temporary/{fakeValue.FileName}";
+                fakeValue.ExpiryDate = DateTime.Now.AddDays(1);
+
+                if (i == 8)
+                {
+                    fakeValue.ExpiryDate = DateTime.Now.AddDays(-1);
+                }
+                
+                await repository.SaveAsync(fakeTenant, null, "primary", ImmutableDictionary<string, object>.Empty, fakeValue);
+            }
+        }
+
+        var actualTenantItemsCount = await repository.CountAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
+        var expiredItems = await repository.AllExpired();
+        
+        Assert.Multiple(() =>
+        {
+            Assert.That(actualTenantItemsCount, Is.EqualTo(10));
+            Assert.That(expiredItems.Count(), Is.EqualTo(4));
+        });
+    }
 }

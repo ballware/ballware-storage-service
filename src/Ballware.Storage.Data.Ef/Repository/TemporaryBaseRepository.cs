@@ -20,6 +20,6 @@ public class TemporaryBaseRepository : TenantableRepository<Public.Temporary, Pe
     {
         return await StorageContext.Temporaries.Where(t => t.ExpiryDate <= DateTime.Now)
             .ToListAsync()
-            .ContinueWith(t => t.Result.Select(tx => (TenantId: tx.TenantId, Entry: Mapper.Map<Temporary>(t)) ));
+            .ContinueWith(t => t.Result.Select(tx => (TenantId: tx.TenantId, Entry: Mapper.Map<Temporary>(tx)) ));
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Security.Claims;
 using Ballware.Shared.Authorization;
 using Ballware.Storage.Data.Public;
@@ -77,6 +78,77 @@ public static class AttachmentEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "storage")
     {   
+        app.MapGet(basePath + "/allfortenantentityandowner/{tenantId}/{entity}/{ownerId}", HandleAllForTenantEntityAndOwnerAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<Attachment>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "AllForTenantEntityAndOwner")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query attachments for entity and owner");
+        
+        app.MapGet(basePath + "/downloadfortenantentityandownerbyid/{tenantId}/{entity}/{ownerId}/{id}", HandleDownloadForTenantEntityAndOwnerByIdAsync)
+            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(apiOperationPrefix + "DownloadForTenantEntityAndOwnerById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Download attachment for entity and owner by ID");
+        
+        app.MapGet(basePath + "/downloadfortenantentityandownerbyfilename/{tenantId}/{entity}/{ownerId}/{filename}", HandleDownloadForTenantEntityAndOwnerByFilenameAsync)
+            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(apiOperationPrefix + "DownloadForTenantEntityAndOwnerByFilename")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Download attachment for entity and owner by filename");
+        
+        app.MapPost(basePath + "/uploadfortenantentityandownerbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}", HandleUploadForTenantEntityAndOwnerBehalfOfUserAsync)
+            .RequireAuthorization(authorizationScope)
+            .DisableAntiforgery()
+            .Produces(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "UploadForTenantEntityAndOwner")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Upload attachment for tenant, entity and owner");
+        
+        app.MapDelete(basePath + "/dropfortenantentityandownerbyidbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}/{id}", HandleDropForTenantEntityAndOwnerByIdBehalfOfUserAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces( StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "DropForTenantEntityAndOwnerById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Drop attachment for tenant, entity and owner by ID");
+        
+        app.MapDelete(basePath + "/dropallfortenantentityandownerbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}", HandleDropAllForTenantEntityAndOwnerBehalfOfUserAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces( StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "DropAllForTenantEntityAndOwner")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Drop all attachments for tenant, entity and owner");
+        
+        app.MapDelete(basePath + "/dropallfortenantandentitybehalfofuser/{tenantId}/{userId}/{entity}", HandleDropAllForTenantAndEntityBehalfOfUserAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces( StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "DropAllForTenantAndEntity")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Drop all attachments for tenant, entity and owner");
+        
+        app.MapDelete(basePath + "/dropallfortenantbehalfofuser/{tenantId}/{userId}", HandleDropAllForTenantBehalfOfUserAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces( StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "DropAllForTenant")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Drop all attachments for tenant");
+        
         return app;
     }
     
@@ -97,7 +169,7 @@ public static class AttachmentEndpoint
         {
             var storagePath = await storageProvider.UploadForEntityAndOwnerAsync(tenantId, entity, ownerId, file.FileName, file.ContentType, file.OpenReadStream());
             
-            var attachment = await repository.SingeByEntityOwnerAndFileNameAsync(tenantId, entity, ownerId, file.FileName);
+            var attachment = await repository.SingleByEntityOwnerAndFileNameAsync(tenantId, entity, ownerId, file.FileName);
 
             if (attachment == null)
             {
@@ -178,6 +250,154 @@ public static class AttachmentEndpoint
             }    
             
             await repository.RemoveAsync(tenantId, userId, claims, new Dictionary<string, object>()
+            {
+                { "Id", attachment.Id }
+            });
+        }
+        
+        return Results.Ok();
+    }
+    
+    private static async Task<IResult> HandleAllForTenantEntityAndOwnerAsync(IAttachmentRepository repository, Guid tenantId, string entity, Guid ownerId)
+    {
+        return Results.Ok(await repository.AllByEntityAndOwnerIdAsync(tenantId, entity, ownerId));
+    }
+    
+    private static async Task<IResult> HandleUploadForTenantEntityAndOwnerBehalfOfUserAsync(IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, Guid tenantId, Guid userId, string entity, Guid ownerId, IFormFileCollection files)
+    {
+        foreach (var file in files)
+        {
+            var storagePath = await storageProvider.UploadForEntityAndOwnerAsync(tenantId, entity, ownerId, file.FileName, file.ContentType, file.OpenReadStream());
+            
+            var attachment = await repository.SingleByEntityOwnerAndFileNameAsync(tenantId, entity, ownerId, file.FileName);
+
+            if (attachment == null)
+            {
+                attachment = await repository.NewAsync(tenantId, AttachmentPrimaryQuery, ImmutableDictionary<string, object>.Empty);
+            }
+            
+            attachment.Entity = entity;
+            attachment.OwnerId = ownerId;
+            attachment.FileName = file.FileName;
+            attachment.ContentType = file.ContentType;
+            attachment.FileSize = file.Length;
+            attachment.StoragePath = storagePath;
+
+            await repository.SaveAsync(tenantId, userId, AttachmentPrimaryQuery, ImmutableDictionary<string, object>.Empty, attachment);
+        }
+
+        return Results.Created();
+    }
+    
+    private static async Task<IResult> HandleDownloadForTenantEntityAndOwnerByIdAsync(IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, Guid tenantId, string entity, Guid ownerId, Guid id)
+    {
+        var attachment = await repository.ByIdAsync(tenantId, AttachmentPrimaryQuery, ImmutableDictionary<string, object>.Empty, id);
+        
+        if (attachment == null || String.IsNullOrEmpty(attachment.StoragePath))
+        {
+            return Results.NotFound($"Attachment with ID {id} not found for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        var fileContent = await storageProvider.DownloadForEntityAndOwnerByPathAsync(tenantId, entity, ownerId, attachment.StoragePath);
+        
+        if (fileContent == null)
+        {
+            return Results.NotFound($"File not found for attachment with ID {id} for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        return Results.File(fileContent, attachment.ContentType, attachment.FileName);
+    }
+    
+    private static async Task<IResult> HandleDownloadForTenantEntityAndOwnerByFilenameAsync(IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, Guid tenantId, string entity, Guid ownerId, string filename)
+    {
+        var attachment = await repository.SingleByEntityOwnerAndFileNameAsync(tenantId, entity, ownerId, filename);
+        
+        if (attachment == null || String.IsNullOrEmpty(attachment.StoragePath))
+        {
+            return Results.NotFound($"Attachment {filename} not found for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        var fileContent = await storageProvider.DownloadForEntityAndOwnerByPathAsync(tenantId, entity, ownerId, attachment.StoragePath);
+        
+        if (fileContent == null)
+        {
+            return Results.NotFound($"File not found for attachment {filename} for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        return Results.File(fileContent, attachment.ContentType, attachment.FileName);
+    }
+    
+    private static async Task<IResult> HandleDropForTenantEntityAndOwnerByIdBehalfOfUserAsync(IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, Guid tenantId, Guid userId, string entity, Guid ownerId, Guid id)
+    {
+        var attachment = await repository.ByIdAsync(tenantId, AttachmentPrimaryQuery, ImmutableDictionary<string, object>.Empty, id);
+        
+        if (attachment == null || String.IsNullOrEmpty(attachment.StoragePath))
+        {
+            return Results.NotFound($"Attachment with ID {id} not found for entity '{entity}' and owner '{ownerId}'.");
+        }
+        
+        await storageProvider.DropForEntityAndOwnerByPathAsync(tenantId, entity, ownerId, attachment.StoragePath);
+        
+        await repository.RemoveAsync(tenantId, userId, ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>()
+        {
+            { "Id", id }
+        });
+        
+        return Results.Ok();
+    }
+    
+    private static async Task<IResult> HandleDropAllForTenantEntityAndOwnerBehalfOfUserAsync(IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, Guid tenantId, Guid userId, string entity, Guid ownerId)
+    {
+        var attachments = await repository.AllByEntityAndOwnerIdAsync(tenantId, entity, ownerId);
+
+        foreach (var attachment in attachments)
+        {
+            if (!string.IsNullOrEmpty(attachment.StoragePath))
+            {
+                await storageProvider.DropForEntityAndOwnerByPathAsync(tenantId, entity, ownerId, attachment.StoragePath);
+            }    
+            
+            await repository.RemoveAsync(tenantId, userId, ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>()
+            {
+                { "Id", attachment.Id }
+            });
+        }
+        
+        return Results.Ok();
+    }
+    
+    private static async Task<IResult> HandleDropAllForTenantAndEntityBehalfOfUserAsync(IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, Guid tenantId, Guid userId, string entity)
+    {
+        var attachments = await repository.AllByEntityAsync(tenantId, entity);
+
+        foreach (var attachment in attachments)
+        {
+            if (!string.IsNullOrEmpty(attachment.StoragePath))
+            {
+                await storageProvider.DropForEntityAndOwnerByPathAsync(tenantId, entity, attachment.OwnerId, attachment.StoragePath);
+            }    
+            
+            await repository.RemoveAsync(tenantId, userId, ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>()
+            {
+                { "Id", attachment.Id }
+            });
+        }
+        
+        return Results.Ok();
+    }
+    
+    private static async Task<IResult> HandleDropAllForTenantBehalfOfUserAsync(IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, Guid tenantId, Guid userId)
+    {
+        var attachments = await repository.AllAsync(tenantId);
+
+        foreach (var attachment in attachments)
+        {
+            if (!string.IsNullOrEmpty(attachment.StoragePath))
+            {
+                await storageProvider.DropForEntityAndOwnerByPathAsync(tenantId, attachment.Entity, attachment.OwnerId, attachment.StoragePath);
+            }    
+            
+            await repository.RemoveAsync(tenantId, userId, ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>()
             {
                 { "Id", attachment.Id }
             });

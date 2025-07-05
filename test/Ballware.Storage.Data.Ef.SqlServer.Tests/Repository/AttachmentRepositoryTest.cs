@@ -31,7 +31,8 @@ public class AttachmentRepositoryTest : RepositoryBaseTest
         await repository.SaveAsync(TenantId, null, "primary", ImmutableDictionary<string, object>.Empty, expectedValue);
 
         var actualValue = await repository.ByIdAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, expectedValue.Id);
-
+        var actualValueByFileName = await repository.SingleByEntityOwnerAndFileNameAsync(TenantId, expectedEntity, expectedOwnerId, "fake_file.txt");
+        
         Assert.Multiple(() =>
         {
             Assert.That(actualValue, Is.Not.Null);
@@ -42,6 +43,15 @@ public class AttachmentRepositoryTest : RepositoryBaseTest
             Assert.That(actualValue?.FileName, Is.EqualTo(expectedValue.FileName));
             Assert.That(actualValue?.FileSize, Is.EqualTo(expectedValue.FileSize));
             Assert.That(actualValue?.StoragePath, Is.EqualTo(expectedValue.StoragePath));
+            
+            Assert.That(actualValueByFileName, Is.Not.Null);
+            Assert.That(actualValueByFileName?.Id, Is.EqualTo(expectedValue.Id));
+            Assert.That(actualValueByFileName?.Entity, Is.EqualTo(expectedValue.Entity));
+            Assert.That(actualValueByFileName?.OwnerId, Is.EqualTo(expectedValue.OwnerId));
+            Assert.That(actualValueByFileName?.ContentType, Is.EqualTo(expectedValue.ContentType));
+            Assert.That(actualValueByFileName?.FileName, Is.EqualTo(expectedValue.FileName));
+            Assert.That(actualValueByFileName?.FileSize, Is.EqualTo(expectedValue.FileSize));
+            Assert.That(actualValueByFileName?.StoragePath, Is.EqualTo(expectedValue.StoragePath));
         });
 
         actualValue.FileSize = 256;
@@ -73,7 +83,7 @@ public class AttachmentRepositoryTest : RepositoryBaseTest
         });
 
         actualValue = await repository.ByIdAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, expectedValue.Id);
-
+        
         Assert.That(actualValue, Is.Null);
     }
 
@@ -108,6 +118,8 @@ public class AttachmentRepositoryTest : RepositoryBaseTest
         var actualTenantAllItems = await repository.AllAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
         var actualTenantQueryItems = await repository.QueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         var actualOwnerItems = await repository.AllByEntityAndOwnerIdAsync(TenantId, "fake_entity", fakeOwnerId);
+        var actualEntityItems = await repository.AllByEntityAsync(TenantId, "fake_entity");
+        var actualTenantItems = await repository.AllAsync(TenantId);
 
         Assert.Multiple(() =>
         {
@@ -115,6 +127,8 @@ public class AttachmentRepositoryTest : RepositoryBaseTest
             Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10));
             Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
             Assert.That(actualOwnerItems.Count(), Is.EqualTo(10));
+            Assert.That(actualEntityItems.Count(), Is.EqualTo(10));
+            Assert.That(actualTenantItems.Count(), Is.EqualTo(10));
         });
     }
     

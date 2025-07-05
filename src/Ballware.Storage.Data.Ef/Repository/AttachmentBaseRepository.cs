@@ -1,7 +1,6 @@
 using AutoMapper;
 using Ballware.Shared.Data.Ef.Repository;
 using Ballware.Shared.Data.Repository;
-using Ballware.Storage.Data.Public;
 using Ballware.Storage.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,18 +15,32 @@ public class AttachmentBaseRepository : TenantableRepository<Public.Attachment, 
         StorageContext = context;
     }
 
-    public async Task<IEnumerable<Attachment>> AllByEntityAndOwnerIdAsync(Guid tenantId, string entity, Guid ownerId)
+    public async Task<IEnumerable<Public.Attachment>> AllAsync(Guid tenantId)
+    {
+        return await StorageContext.Attachments.Where(a => a.TenantId == tenantId)
+            .ToListAsync()
+            .ContinueWith(t => Mapper.Map<IEnumerable<Public.Attachment>>(t.Result));
+    }
+
+    public async Task<IEnumerable<Public.Attachment>> AllByEntityAsync(Guid tenantId, string entity)
+    {
+        return await StorageContext.Attachments.Where(a => a.TenantId == tenantId && a.Entity == entity)
+            .ToListAsync()
+            .ContinueWith(t => Mapper.Map<IEnumerable<Public.Attachment>>(t.Result));
+    }
+
+    public async Task<IEnumerable<Public.Attachment>> AllByEntityAndOwnerIdAsync(Guid tenantId, string entity, Guid ownerId)
     {
         return await StorageContext.Attachments.Where(a => a.TenantId == tenantId && a.Entity == entity && a.OwnerId == ownerId)
             .ToListAsync()
-            .ContinueWith(t => Mapper.Map<IEnumerable<Attachment>>(t.Result));
+            .ContinueWith(t => Mapper.Map<IEnumerable<Public.Attachment>>(t.Result));
     }
 
-    public async Task<Attachment?> SingeByEntityOwnerAndFileNameAsync(Guid tenantId, string entity, Guid ownerId, string fileName)
+    public async Task<Public.Attachment?> SingleByEntityOwnerAndFileNameAsync(Guid tenantId, string entity, Guid ownerId, string fileName)
     {
         return await StorageContext.Attachments
             .Where(a => a.TenantId == tenantId && a.Entity == entity && a.OwnerId == ownerId && a.FileName == fileName)
             .FirstOrDefaultAsync()
-            .ContinueWith(t => Mapper.Map<Attachment>(t.Result));
+            .ContinueWith(t => Mapper.Map<Public.Attachment>(t.Result));
     }
 }
