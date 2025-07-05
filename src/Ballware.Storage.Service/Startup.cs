@@ -142,7 +142,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 c.SwaggerDoc("storage", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "ballware Storage API",
+                    Title = "ballware Storage User API",
+                    Version = "v1"
+                });
+                
+                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "ballware Storage Service API",
                     Version = "v1"
                 });
 
@@ -200,7 +206,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("storage/swagger.json", "ballware Storage API");
+                    c.SwaggerEndpoint("storage/swagger.json", "ballware Storage User API");
+                    c.SwaggerEndpoint("service/swagger.json", "ballware Storage Service API");
                     c.OAuthClientId(swaggerOptions.ClientId);
                     c.OAuthClientSecret(swaggerOptions.ClientSecret);
                     c.OAuthScopes(authorizationOptions.RequiredScopes?.Split(" "));

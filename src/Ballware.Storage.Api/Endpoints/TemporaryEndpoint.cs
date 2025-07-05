@@ -38,7 +38,7 @@ public static class TemporaryEndpoint
         string apiTag = ApiTag,
         string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
-        string apiGroup = "storage")
+        string apiGroup = "service")
     {   
         app.MapGet(basePath + "/downloadfortenantbyid/{tenantId}/{id}", HandleDownloadForTenantByIdAsync)
             .RequireAuthorization(authorizationScope)
