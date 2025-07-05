@@ -1,4 +1,6 @@
-﻿namespace Ballware.Storage.Data.Public;
+﻿using Ballware.Shared.Data.Public;
+
+namespace Ballware.Storage.Data.Public;
 
 public class Attachment : IEditable
 {

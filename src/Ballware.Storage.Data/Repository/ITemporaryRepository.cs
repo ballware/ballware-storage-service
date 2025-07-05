@@ -1,3 +1,4 @@
+using Ballware.Shared.Data.Repository;
 using Ballware.Storage.Data.Public;
 
 namespace Ballware.Storage.Data.Repository;

@@ -1,3 +1,5 @@
+using Ballware.Shared.Data.Repository;
+
 namespace Ballware.Storage.Data.Repository;
 
 public interface IAttachmentRepository : ITenantableRepository<Public.Attachment>

@@ -1,5 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+using Ballware.Shared.Data.Public;
 
 namespace Ballware.Storage.Data.Public;
 

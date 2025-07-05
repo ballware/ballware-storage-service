@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.1" />
+      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.2" />
     </ItemGroup>
     
 </Project>
