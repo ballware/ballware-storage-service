@@ -11,7 +11,8 @@ public class AuthorizationOptions
     [Required]
     public required string Audience { get; set; }
     public bool RequireHttpsMetadata { get; set; } = true;
-    public string RequiredScopes { get; set; } = "openid storageApi";
+    public string RequiredUserScopes { get; set; } = "storageApi";
+    public string RequiredServiceScopes { get; set; } = "serviceApi";
     
     [Required]
     public required string TenantClaim { get; set; } = "tenant";

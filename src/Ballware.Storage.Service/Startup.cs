@@ -93,8 +93,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     .Claims
                     .Where(c => "scope" == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
-                    .Any(s => authorizationOptions.RequiredScopes
-                        .Split(" ").Contains(s, StringComparer.Ordinal))));
+                    .Any(s => authorizationOptions.RequiredUserScopes
+                        .Split(" ").Contains(s, StringComparer.Ordinal))))
+            .AddPolicy("serviceApi",
+                policy => policy.RequireAssertion(context =>
+                    context.User
+                        .Claims
+                        .Where(c => "scope" == c.Type)
+                        .SelectMany(c => c.Value.Split(' '))
+                        .Any(s => authorizationOptions.RequiredServiceScopes
+                            .Split(" ").Contains(s, StringComparer.Ordinal))));
 
         if (corsOptions != null)
         {
@@ -179,7 +187,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                         new OpenApiSecurityScheme {
                             Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oidc" }
                         },
-                        authorizationOptions.RequiredScopes.Split(" ")
+                        authorizationOptions.RequiredUserScopes.Split(" ")
                     }
                 });
             });
@@ -250,7 +258,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     c.SwaggerEndpoint("service/swagger.json", "ballware Storage Service API");
                     c.OAuthClientId(swaggerOptions.ClientId);
                     c.OAuthClientSecret(swaggerOptions.ClientSecret);
-                    c.OAuthScopes(authorizationOptions.RequiredScopes?.Split(" "));
+                    c.OAuthScopes(authorizationOptions.RequiredUserScopes?.Split(" "));
                     c.OAuthUsePkce();
                 });
             }
