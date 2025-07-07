@@ -23,7 +23,7 @@ public static class TemporaryEndpoint
         string apiGroup = "storage")
     {   
         app.MapGet(basePath + "/downloadbyid/{id}", HandleDownloadByIdAsync)
-            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")
+            .Produces<FileStream>(StatusCodes.Status200OK, contentType: "application/octet-stream")
             .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "DownloadById")
             .WithGroupName(apiGroup)
@@ -42,7 +42,7 @@ public static class TemporaryEndpoint
     {   
         app.MapGet(basePath + "/downloadfortenantbyid/{tenantId}/{id}", HandleDownloadForTenantByIdAsync)
             .RequireAuthorization(authorizationScope)
-            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")
+            .Produces<FileStream>(StatusCodes.Status200OK, contentType: "application/octet-stream")
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "DownloadForTenantById")
@@ -64,7 +64,7 @@ public static class TemporaryEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces( StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
-            .WithName(apiOperationPrefix + "DropForTenantAndId")
+            .WithName(apiOperationPrefix + "DropForTenantAndIdBehalfOfUser")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
             .WithSummary("Drop temporary for tenant and ID");
