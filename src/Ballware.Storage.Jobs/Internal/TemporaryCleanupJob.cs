@@ -20,7 +20,7 @@ public class TemporaryCleanupJob : IJob
     
     public async Task Execute(IJobExecutionContext context)
     {
-        var expiredTemporaries = await Repository.AllExpired();
+        var expiredTemporaries = await Repository.AllExpiredAsync();
 
         foreach (var expired in expiredTemporaries)
         {

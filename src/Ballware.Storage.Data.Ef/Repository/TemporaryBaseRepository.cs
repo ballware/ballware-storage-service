@@ -16,7 +16,7 @@ public class TemporaryBaseRepository : TenantableRepository<Public.Temporary, Pe
         StorageContext = context;
     }
 
-    public async Task<IEnumerable<( Guid TenantId, Temporary Entry )>> AllExpired()
+    public async Task<IEnumerable<( Guid TenantId, Temporary Entry )>> AllExpiredAsync()
     {
         return await StorageContext.Temporaries.Where(t => t.ExpiryDate <= DateTime.UtcNow)
             .ToListAsync()

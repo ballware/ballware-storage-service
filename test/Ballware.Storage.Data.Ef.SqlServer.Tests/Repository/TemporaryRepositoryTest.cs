@@ -118,7 +118,7 @@ public class TemporaryRepositoryTest : RepositoryBaseTest
         }
 
         var actualTenantItemsCount = await repository.CountAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
-        var expiredItems = await repository.AllExpired();
+        var expiredItems = await repository.AllExpiredAsync();
         
         Assert.Multiple(() =>
         {
