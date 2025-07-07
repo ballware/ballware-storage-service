@@ -98,7 +98,7 @@ public class AttachmentUserApiTest : ApiMappingBaseTest
     }
     
     [Test]
-    public async Task HandleDownloadForEntityAndOwnerById_succeeds()
+    public async Task HandleDownloadForTenantEntityAndOwnerById_succeeds()
     {
         // Arrange
         var expectedTenantId = Guid.NewGuid();
@@ -152,7 +152,7 @@ public class AttachmentUserApiTest : ApiMappingBaseTest
         });
         
         // Act
-        var response = await client.GetAsync($"attachment/downloadforentityandownerbyid/{expectedEntity}/{expectedOwnerId}/{expectedAttachmentId}");
+        var response = await client.GetAsync($"attachment/downloadforentityandownerbyid/{expectedTenantId}/{expectedEntity}/{expectedOwnerId}/{expectedAttachmentId}");
         
         // Assert
         await Assert.MultipleAsync(async () =>
@@ -169,7 +169,7 @@ public class AttachmentUserApiTest : ApiMappingBaseTest
     }
     
     [Test]
-    public async Task HandleDownloadForEntityAndOwnerById_AttachmentNotFound()
+    public async Task HandleDownloadForTenantEntityAndOwnerById_AttachmentNotFound()
     {
         // Arrange
         var expectedTenantId = Guid.NewGuid();
@@ -203,13 +203,13 @@ public class AttachmentUserApiTest : ApiMappingBaseTest
         });
         
         // Act
-        var response = await client.GetAsync($"attachment/downloadforentityandownerbyid/{expectedEntity}/{expectedOwnerId}/{expectedAttachmentId}");
+        var response = await client.GetAsync($"attachment/downloadforentityandownerbyid/{expectedTenantId}/{expectedEntity}/{expectedOwnerId}/{expectedAttachmentId}");
         
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
     }
     
     [Test]
-    public async Task HandleDownloadForEntityAndOwnerById_FileNotFound()
+    public async Task HandleDownloadForTenantEntityAndOwnerById_FileNotFound()
     {
         // Arrange
         var expectedTenantId = Guid.NewGuid();
@@ -262,7 +262,7 @@ public class AttachmentUserApiTest : ApiMappingBaseTest
         });
         
         // Act
-        var response = await client.GetAsync($"attachment/downloadforentityandownerbyid/{expectedEntity}/{expectedOwnerId}/{expectedAttachmentId}");
+        var response = await client.GetAsync($"attachment/downloadforentityandownerbyid/{expectedTenantId}/{expectedEntity}/{expectedOwnerId}/{expectedAttachmentId}");
         
         // Assert
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));

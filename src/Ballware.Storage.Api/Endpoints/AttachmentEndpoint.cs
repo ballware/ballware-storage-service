@@ -32,7 +32,7 @@ public static class AttachmentEndpoint
             .WithTags(apiTag)
             .WithSummary("Query attachments for entity and owner");
         
-        app.MapGet(basePath + "/downloadforentityandownerbyid/{entity}/{ownerId}/{id}", HandleDownloadForEntityAndOwnerByIdAsync)
+        app.MapGet(basePath + "/downloadforentityandownerbyid/{tenantId}/{entity}/{ownerId}/{id}", HandleDownloadForTenantEntityAndOwnerByIdAsync)
             .Produces<FileStream>(StatusCodes.Status200OK, contentType: "application/octet-stream")
             .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "DownloadForEntityAndOwnerById")
@@ -196,28 +196,6 @@ public static class AttachmentEndpoint
         }
 
         return Results.Created();
-    }
-    
-    private static async Task<IResult> HandleDownloadForEntityAndOwnerByIdAsync(IPrincipalUtils principalUtils, IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, ClaimsPrincipal user, string entity, Guid ownerId, Guid id)
-    {
-        var tenantId = principalUtils.GetUserTenandId(user);
-        var claims = principalUtils.GetUserClaims(user);
-        
-        var attachment = await repository.ByIdAsync(tenantId, AttachmentPrimaryQuery, claims, id);
-        
-        if (attachment == null || String.IsNullOrEmpty(attachment.StoragePath))
-        {
-            return Results.NotFound($"Attachment with ID {id} not found for entity '{entity}' and owner '{ownerId}'.");
-        }
-        
-        var fileContent = await storageProvider.DownloadForEntityAndOwnerByPathAsync(tenantId, entity, ownerId, attachment.StoragePath);
-        
-        if (fileContent == null)
-        {
-            return Results.NotFound($"File not found for attachment with ID {id} for entity '{entity}' and owner '{ownerId}'.");
-        }
-        
-        return Results.File(fileContent, attachment.ContentType, attachment.FileName);
     }
     
     private static async Task<IResult> HandleDropForEntityAndOwnerByIdAsync(IPrincipalUtils principalUtils, IAttachmentStorageProvider storageProvider, IAttachmentRepository repository, ClaimsPrincipal user, string entity, Guid ownerId, Guid id)

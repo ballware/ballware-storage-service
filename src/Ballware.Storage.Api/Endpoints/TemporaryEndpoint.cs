@@ -22,7 +22,7 @@ public static class TemporaryEndpoint
         string authorizationScope = "storageApi",
         string apiGroup = "storage")
     {   
-        app.MapGet(basePath + "/downloadbyid/{id}", HandleDownloadByIdAsync)
+        app.MapGet(basePath + "/downloadbyid/{tenantId}/{id}", HandleDownloadForTenantByIdAsync)
             .Produces<FileStream>(StatusCodes.Status200OK, contentType: "application/octet-stream")
             .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "DownloadById")
@@ -70,28 +70,6 @@ public static class TemporaryEndpoint
             .WithSummary("Drop temporary for tenant and ID");
         
         return app;
-    }
-    
-    private static async Task<IResult> HandleDownloadByIdAsync(IPrincipalUtils principalUtils, ITemporaryStorageProvider storageProvider, ITemporaryRepository repository, ClaimsPrincipal user, Guid id)
-    {
-        var tenantId = principalUtils.GetUserTenandId(user);
-        var claims = principalUtils.GetUserClaims(user);
-        
-        var temporary = await repository.ByIdAsync(tenantId, TemporaryPrimaryQuery, claims, id);
-        
-        if (temporary == null || String.IsNullOrEmpty(temporary.StoragePath))
-        {
-            return Results.NotFound($"Temporary with ID ${id} not existing in tenant {tenantId}");
-        }
-        
-        var fileContent = await storageProvider.DownloadByPathAsync(tenantId, temporary.StoragePath);
-        
-        if (fileContent == null)
-        {
-            return Results.NotFound($"File not found for path {temporary.StoragePath}");
-        }
-        
-        return Results.File(fileContent, temporary.ContentType, temporary.FileName);
     }
     
     private static async Task<IResult> HandleDownloadForTenantByIdAsync(ITemporaryStorageProvider storageProvider, ITemporaryRepository repository, Guid tenantId, Guid id)

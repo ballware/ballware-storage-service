@@ -66,7 +66,7 @@ public class TemporaryUserApiTest : ApiMappingBaseTest
         });
         
         // Act
-        var response = await client.GetAsync($"temporary/downloadbyid/{expectedTemporaryId}");
+        var response = await client.GetAsync($"temporary/downloadbyid/{expectedTenantId}/{expectedTemporaryId}");
         
         // Assert
         await Assert.MultipleAsync(async () =>
@@ -115,7 +115,7 @@ public class TemporaryUserApiTest : ApiMappingBaseTest
         });
         
         // Act
-        var response = await client.GetAsync($"temporary/downloadbyid/{expectedTemporaryId}");
+        var response = await client.GetAsync($"temporary/downloadbyid/{expectedTenantId}/{expectedTemporaryId}");
         
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
@@ -172,7 +172,7 @@ public class TemporaryUserApiTest : ApiMappingBaseTest
         });
         
         // Act
-        var response = await client.GetAsync($"temporary/downloadbyid/{expectedTemporaryId}");
+        var response = await client.GetAsync($"temporary/downloadbyid/{expectedTenantId}/{expectedTemporaryId}");
         
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
