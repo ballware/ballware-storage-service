@@ -31,6 +31,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Storage.Api\Ballware.Storage.Api.csproj" />
+      <ProjectReference Include="..\Ballware.Storage.Data.Ef.Postgres\Ballware.Storage.Data.Ef.Postgres.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data.Ef.SqlServer\Ballware.Storage.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data.Ef\Ballware.Storage.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Data\Ballware.Storage.Data.csproj" />

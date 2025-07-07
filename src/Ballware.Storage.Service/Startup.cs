@@ -2,6 +2,7 @@ using Ballware.Shared.Authorization;
 using Ballware.Storage.Api.Endpoints;
 using Ballware.Storage.Data.Ef;
 using Ballware.Storage.Data.Ef.Configuration;
+using Ballware.Storage.Data.Ef.Postgres;
 using Ballware.Storage.Data.Ef.SqlServer;
 using Ballware.Storage.Jobs;
 using Ballware.Storage.Jobs.Configuration;
@@ -143,9 +144,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
 
-        if (!string.IsNullOrEmpty(metaStorageConnectionString))
+        if ("mssql".Equals(metaStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(metaStorageConnectionString))
         {
             Services.AddBallwareMetaStorageForSqlServer(metaStorageOptions, metaStorageConnectionString);    
+        } else if ("postgres".Equals(metaStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) &&
+                   !string.IsNullOrEmpty(metaStorageConnectionString))
+        {
+            Services.AddBallwareMetaStorageForPostgres(metaStorageOptions, metaStorageConnectionString);
         }
 
         if (azureStorageOptions != null)

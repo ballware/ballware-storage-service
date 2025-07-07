@@ -24,6 +24,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Jobs", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Jobs.Tests", "test\Ballware.Storage.Jobs.Tests\Ballware.Storage.Jobs.Tests.csproj", "{D3133364-48ED-48D0-BF47-22258C2D8AF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.Postgres", "src\Ballware.Storage.Data.Ef.Postgres\Ballware.Storage.Data.Ef.Postgres.csproj", "{F309B2E5-910F-4DAC-A8EB-E3BD9036F1FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.Postgres.Tests", "test\Ballware.Storage.Data.Ef.Postgres.Tests\Ballware.Storage.Data.Ef.Postgres.Tests.csproj", "{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,5 +82,13 @@ Global
 		{D3133364-48ED-48D0-BF47-22258C2D8AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3133364-48ED-48D0-BF47-22258C2D8AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3133364-48ED-48D0-BF47-22258C2D8AF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F309B2E5-910F-4DAC-A8EB-E3BD9036F1FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F309B2E5-910F-4DAC-A8EB-E3BD9036F1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F309B2E5-910F-4DAC-A8EB-E3BD9036F1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F309B2E5-910F-4DAC-A8EB-E3BD9036F1FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
