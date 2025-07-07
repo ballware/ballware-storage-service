@@ -24,6 +24,8 @@ public class TemporaryCleanupJob : IJob
 
         foreach (var expired in expiredTemporaries)
         {
+            await StorageProvider.DropByPathAsync(expired.TenantId, expired.Entry.StoragePath);
+            
             await Repository.RemoveAsync(expired.TenantId, null, ImmutableDictionary<string, object>.Empty,
                 new Dictionary<string, object>
                 {

@@ -104,10 +104,12 @@ public static class TemporaryEndpoint
                 temporary = await repository.NewAsync(tenantId, TemporaryPrimaryQuery, ImmutableDictionary<string,object>.Empty);
             }
             
+            temporary.Id = id;
             temporary.FileName = file.FileName;
             temporary.ContentType = file.ContentType;
             temporary.FileSize = file.Length;
             temporary.StoragePath = storagePath;
+            temporary.ExpiryDate = DateTime.UtcNow.AddMinutes(30);
 
             await repository.SaveAsync(tenantId, userId, TemporaryPrimaryQuery, ImmutableDictionary<string,object>.Empty, temporary);
         }
