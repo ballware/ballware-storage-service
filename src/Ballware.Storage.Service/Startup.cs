@@ -108,6 +108,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 });
             });
         }
+        
+        Services.Configure<JsonOptions>(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        });
+        
+        Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = null;
+        });
 
         Services.AddHttpContextAccessor();
 
@@ -218,10 +228,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         app.UseAuthorization();
         
-        app.MapAttachmentUserApi("attachment");
-        app.MapAttachmentServiceApi("attachment");
-        app.MapTemporaryUserApi("temporary");
-        app.MapTemporaryServiceApi("temporary");
+        app.MapAttachmentUserApi("storage/attachment");
+        app.MapAttachmentServiceApi("storage/attachment");
+        app.MapTemporaryUserApi("storage/temporary");
+        app.MapTemporaryServiceApi("storage/temporary");
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
