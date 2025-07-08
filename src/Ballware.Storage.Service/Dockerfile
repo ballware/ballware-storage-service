@@ -12,6 +12,7 @@ WORKDIR /src
 COPY ./Ballware.Storage.Api ./Ballware.Storage.Api
 COPY ./Ballware.Storage.Data ./Ballware.Storage.Data
 COPY ./Ballware.Storage.Data.Ef ./Ballware.Storage.Data.Ef
+COPY ./Ballware.Storage.Data.Ef.Postgres ./Ballware.Storage.Data.Ef.Postgres
 COPY ./Ballware.Storage.Data.Ef.SqlServer ./Ballware.Storage.Data.Ef.SqlServer
 COPY ./Ballware.Storage.Jobs ./Ballware.Storage.Jobs
 COPY ./Ballware.Storage.Metadata ./Ballware.Storage.Metadata
