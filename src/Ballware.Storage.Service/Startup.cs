@@ -1,10 +1,23 @@
-using Ballware.Storage.Azure;
+using Ballware.Shared.Authorization;
+using Ballware.Storage.Api.Endpoints;
+using Ballware.Storage.Data.Ef;
+using Ballware.Storage.Data.Ef.Configuration;
+using Ballware.Storage.Data.Ef.Postgres;
+using Ballware.Storage.Data.Ef.SqlServer;
+using Ballware.Storage.Jobs;
+using Ballware.Storage.Jobs.Configuration;
+using Ballware.Storage.Provider.Azure;
+using Ballware.Storage.Provider.Azure.Configuration;
 using Ballware.Storage.Service.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
+using Quartz;
+using Serilog;
 
 namespace Ballware.Storage.Service;
 
@@ -18,24 +31,44 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
     {
         CorsOptions? corsOptions = Configuration.GetSection("Cors").Get<CorsOptions>();
         AuthorizationOptions? authorizationOptions = Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
-        StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        MetaStorageOptions? metaStorageOptions = Configuration.GetSection("Meta").Get<MetaStorageOptions>();
+        AzureStorageOptions? azureStorageOptions = Configuration.GetSection("AzureStorage").Get<AzureStorageOptions>();
+        TriggerOptions? triggerOptions = Configuration.GetSection("Trigger").Get<TriggerOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
 
+        var metaStorageConnectionString = Configuration.GetConnectionString("MetaStorageConnection");
+        
         Services.AddOptionsWithValidateOnStart<AuthorizationOptions>()
             .Bind(Configuration.GetSection("Authorization"))
             .ValidateDataAnnotations();
 
-        Services.AddOptionsWithValidateOnStart<StorageOptions>()
-            .Bind(Configuration.GetSection("Storage"))
+        Services.AddOptionsWithValidateOnStart<MetaStorageOptions>()
+            .Bind(Configuration.GetSection("Meta"))
             .ValidateDataAnnotations();
 
+        Services.AddOptionsWithValidateOnStart<TriggerOptions>()
+            .Bind(Configuration.GetSection("Trigger"))
+            .ValidateDataAnnotations();
+        
         Services.AddOptionsWithValidateOnStart<SwaggerOptions>()
             .Bind(Configuration.GetSection("Swagger"))
             .ValidateDataAnnotations();
 
-        if (authorizationOptions == null || storageOptions == null)
+        if (azureStorageOptions != null)
+        {
+            Services.AddOptionsWithValidateOnStart<AzureStorageOptions>()
+                .Bind(Configuration.GetSection("AzureStorage"))
+                .ValidateDataAnnotations();
+        }
+        
+        if (authorizationOptions == null || metaStorageOptions == null)
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
+        }
+
+        if (triggerOptions == null)
+        {
+            triggerOptions = new TriggerOptions();
         }
 
         Services.AddAuthentication(options =>
@@ -61,8 +94,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     .Claims
                     .Where(c => "scope" == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
-                    .Any(s => authorizationOptions.RequiredScopes
-                        .Split(" ").Contains(s, StringComparer.Ordinal))));
+                    .Any(s => authorizationOptions.RequiredUserScopes
+                        .Split(" ").Contains(s, StringComparer.Ordinal))))
+            .AddPolicy("serviceApi",
+                policy => policy.RequireAssertion(context =>
+                    context.User
+                        .Claims
+                        .Where(c => "scope" == c.Type)
+                        .SelectMany(c => c.Value.Split(' '))
+                        .Any(s => authorizationOptions.RequiredServiceScopes
+                            .Split(" ").Contains(s, StringComparer.Ordinal))));
 
         if (corsOptions != null)
         {
@@ -76,6 +117,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 });
             });
         }
+        
+        Services.Configure<JsonOptions>(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        });
+        
+        Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = null;
+        });
 
         Services.AddHttpContextAccessor();
 
@@ -83,14 +134,33 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
             .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver())
             .AddApiExplorer();
+        
+        Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
 
-        Services.AddControllers()
-            .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
-            .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
+        Services.AddAutoMapper(config =>
+        {
+            config.AddBallwareMetaStorageMappings();
+        });
 
-        Services.AddBallwareAzureFileStorageShare(
-            storageOptions.ConnectionString,
-            storageOptions.Share);
+        Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
+
+        if ("mssql".Equals(metaStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(metaStorageConnectionString))
+        {
+            Services.AddBallwareMetaStorageForSqlServer(metaStorageOptions, metaStorageConnectionString);    
+        } else if ("postgres".Equals(metaStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) &&
+                   !string.IsNullOrEmpty(metaStorageConnectionString))
+        {
+            Services.AddBallwareMetaStorageForPostgres(metaStorageOptions, metaStorageConnectionString);
+        }
+
+        if (azureStorageOptions != null)
+        {
+            Services.AddBallwareAzureBlobStorage(azureStorageOptions);    
+        }
+
+        Services.AddBallwareStorageBackgroundJobs(triggerOptions);
+        
+        Services.AddEndpointsApiExplorer();
 
         if (swaggerOptions != null)
         {
@@ -98,7 +168,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 c.SwaggerDoc("storage", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "ballware Storage API",
+                    Title = "ballware Storage User API",
+                    Version = "v1"
+                });
+                
+                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "ballware Storage Service API",
                     Version = "v1"
                 });
 
@@ -116,7 +192,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                         new OpenApiSecurityScheme {
                             Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oidc" }
                         },
-                        authorizationOptions.RequiredScopes.Split(" ")
+                        authorizationOptions.RequiredUserScopes.Split(" ")
                     }
                 });
             });
@@ -132,13 +208,43 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             app.UseDeveloperExceptionPage();
             IdentityModelEventSource.ShowPII = true;
         }
+        
+        app.UseExceptionHandler(errorApp =>
+        {
+            errorApp.Run(async context =>
+            {
+                var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                var exception = exceptionFeature?.Error;
+
+                if (exception != null)
+                {
+                    Log.Error(exception, "Unhandled exception occurred");
+
+                    var problemDetails = new ProblemDetails
+                    {
+                        Type = "https://httpstatuses.com/500",
+                        Title = "An unexpected error occurred.",
+                        Status = StatusCodes.Status500InternalServerError,
+                        Detail = app.Environment.IsDevelopment() ? exception.ToString() : null,
+                        Instance = context.Request.Path
+                    };
+
+                    context.Response.StatusCode = problemDetails.Status.Value;
+                    context.Response.ContentType = "application/problem+json";
+                    await context.Response.WriteAsJsonAsync(problemDetails);
+                }
+            });
+        });
 
         app.UseCors();
         app.UseRouting();
 
         app.UseAuthorization();
-
-        app.MapControllers();
+        
+        app.MapAttachmentUserApi("storage/attachment");
+        app.MapAttachmentServiceApi("storage/attachment");
+        app.MapTemporaryUserApi("storage/temporary");
+        app.MapTemporaryServiceApi("storage/temporary");
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
@@ -153,10 +259,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("storage/swagger.json", "ballware Storage API");
+                    c.SwaggerEndpoint("storage/swagger.json", "ballware Storage User API");
+                    c.SwaggerEndpoint("service/swagger.json", "ballware Storage Service API");
                     c.OAuthClientId(swaggerOptions.ClientId);
                     c.OAuthClientSecret(swaggerOptions.ClientSecret);
-                    c.OAuthScopes(authorizationOptions.RequiredScopes?.Split(" "));
+                    c.OAuthScopes(authorizationOptions.RequiredUserScopes?.Split(" "));
                     c.OAuthUsePkce();
                 });
             }

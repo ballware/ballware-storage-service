@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>$(MSBuildProjectName).Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ballware.Storage.Data\Ballware.Storage.Data.csproj" />
+      <ProjectReference Include="..\Ballware.Storage.Metadata\Ballware.Storage.Metadata.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.2" />
+    </ItemGroup>
+    
+</Project>
