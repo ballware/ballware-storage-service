@@ -36,7 +36,17 @@ jobs:
             /k:"ballware_ballware-storage-service" \
             /o:"ballware" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.dotcover.reportsPaths="coverage.html"
+            /d:sonar.cs.dotcover.reportsPaths="coverage.html" \
+            /d:sonar.exclusions="**/Migrations/**/*"
+        
+      - name: Restore dependencies
+        run: |
+          dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" \
+            --name github \
+            --username frankball \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text
+          dotnet restore ballware-storage-service.sln         
         
       - name: Build solution
         run: dotnet build ballware-storage-service.sln --no-incremental --configuration Release
@@ -44,6 +54,7 @@ jobs:
       - name: Run coverage for all test projects
         run: |
           mkdir -p coverage
+          export TestSettings__DatabasePassword='${{ secrets.TEST_STORAGE_PASSWORD }}'
           i=0
           find ./test -name '*.Tests.csproj' | while read project; do
             echo "Running coverage for: $project"
