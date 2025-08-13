@@ -20,6 +20,10 @@ jobs:
             8.0   
       - name: Install GitVersion
         run: dotnet tool install --global GitVersion.Tool
+      - name: Install swashbuckle CLI
+        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 7.2.0
+      - name: Install nswag CLI
+        run: dotnet tool install --global Nswag.ConsoleCore
       - name: Fetch GitVersion
         uses: gittools/actions/gitversion/execute@v0
         with:
@@ -31,7 +35,23 @@ jobs:
             --username frankball \
             --password ${{ secrets.GITHUB_TOKEN }} \
             --store-password-in-clear-text
-          dotnet restore ballware-storage-service.sln              
+          dotnet restore ballware-storage-service.sln
+      - name: Build solution
+        run: |
+          dotnet build ballware-storage-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release   
+      - name: Generate Swagger specification
+        working-directory: src/Ballware.Storage.Service
+        env:
+          ASPNETCORE_ENVIRONMENT: Swagger
+        run: |
+          dotnet tool run swagger tofile \
+            --output ../Ballware.Storage.Service.Client/swagger.json \
+            ./bin/Release/net8.0/Ballware.Storage.Service.dll \
+            service
+      - name: Generate service client code
+        working-directory: src/Ballware.Storage.Service.Client
+        run: |
+          dotnet tool run nswag run nswag.json
       - name: Pack NuGet packages
         run: |          
           dotnet pack ballware-storage-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release --output ./nupkgs

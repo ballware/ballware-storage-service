@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.Po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.Postgres.Tests", "test\Ballware.Storage.Data.Ef.Postgres.Tests\Ballware.Storage.Data.Ef.Postgres.Tests.csproj", "{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Service.Client", "src\Ballware.Storage.Service.Client\Ballware.Storage.Service.Client.csproj", "{F48C83D0-07BF-485F-938E-810BF86814BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,5 +92,9 @@ Global
 		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
