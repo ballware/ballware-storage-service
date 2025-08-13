@@ -8,6 +8,8 @@ using Ballware.Storage.Jobs;
 using Ballware.Storage.Jobs.Configuration;
 using Ballware.Storage.Provider.Azure;
 using Ballware.Storage.Provider.Azure.Configuration;
+using Ballware.Storage.Provider.Minio;
+using Ballware.Storage.Provider.Minio.Configuration;
 using Ballware.Storage.Service.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -32,7 +34,9 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         CorsOptions? corsOptions = Configuration.GetSection("Cors").Get<CorsOptions>();
         AuthorizationOptions? authorizationOptions = Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         MetaStorageOptions? metaStorageOptions = Configuration.GetSection("Meta").Get<MetaStorageOptions>();
+        StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
         AzureStorageOptions? azureStorageOptions = Configuration.GetSection("AzureStorage").Get<AzureStorageOptions>();
+        MinioStorageOptions? minioStorageOptions = Configuration.GetSection("MinioStorage").Get<MinioStorageOptions>();
         TriggerOptions? triggerOptions = Configuration.GetSection("Trigger").Get<TriggerOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
 
@@ -44,6 +48,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddOptionsWithValidateOnStart<MetaStorageOptions>()
             .Bind(Configuration.GetSection("Meta"))
+            .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<StorageOptions>()
+            .Bind(Configuration.GetSection("Storage"))
             .ValidateDataAnnotations();
 
         Services.AddOptionsWithValidateOnStart<TriggerOptions>()
@@ -60,8 +68,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 .Bind(Configuration.GetSection("AzureStorage"))
                 .ValidateDataAnnotations();
         }
+
+        if (minioStorageOptions != null)
+        {
+            Services.AddOptionsWithValidateOnStart<MinioStorageOptions>()
+                .Bind(Configuration.GetSection("MinioStorage"))
+                .ValidateDataAnnotations();
+        }
         
-        if (authorizationOptions == null || metaStorageOptions == null)
+        if (authorizationOptions == null || metaStorageOptions == null || storageOptions == null)
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
@@ -153,9 +168,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             Services.AddBallwareMetaStorageForPostgres(metaStorageOptions, metaStorageConnectionString);
         }
 
-        if (azureStorageOptions != null)
+        if ("azure".Equals(storageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) && azureStorageOptions != null)
         {
             Services.AddBallwareAzureBlobStorage(azureStorageOptions);    
+        } 
+        else if ("minio".Equals(storageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) && minioStorageOptions != null)
+        {
+            Services.AddBallwareMinioBlobStorage(minioStorageOptions);
         }
 
         Services.AddBallwareStorageBackgroundJobs(triggerOptions);
