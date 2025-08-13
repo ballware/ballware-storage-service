@@ -738,7 +738,7 @@
     "securitySchemes": {
       "oidc": {
         "type": "openIdConnect",
-        "openIdConnectUrl": "https://identity.ballware.de/realms/ballware/.well-known/openid-configuration"
+        "openIdConnectUrl": "https://localhost/.well-known/openid-configuration"
       }
     }
   },
