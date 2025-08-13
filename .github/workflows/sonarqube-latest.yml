@@ -55,6 +55,8 @@ jobs:
         run: |
           mkdir -p coverage
           export TestSettings__DatabasePassword='${{ secrets.TEST_STORAGE_PASSWORD }}'
+          export TestSettings__AccessKey='${{ secrets.TEST_MINIO_ACCESSKEY }}'
+          export TestSettings__SecretKey='${{ secrets.TEST_MINIO_SECRETKEY }}'
           i=0
           find ./test -name '*.Tests.csproj' | while read project; do
             echo "Running coverage for: $project"

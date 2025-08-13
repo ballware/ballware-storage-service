@@ -28,6 +28,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.Po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Data.Ef.Postgres.Tests", "test\Ballware.Storage.Data.Ef.Postgres.Tests\Ballware.Storage.Data.Ef.Postgres.Tests.csproj", "{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Service.Client", "src\Ballware.Storage.Service.Client\Ballware.Storage.Service.Client.csproj", "{F48C83D0-07BF-485F-938E-810BF86814BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Provider.Minio", "src\Ballware.Storage.Provider.Minio\Ballware.Storage.Provider.Minio.csproj", "{A32A555F-CF85-4813-8D8E-0C9DC76AD2B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Provider.Minio.Tests", "test\Ballware.Storage.Provider.Minio.Tests\Ballware.Storage.Provider.Minio.Tests.csproj", "{7AD954AE-B7D3-4E4C-B465-0FC58639B64F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,5 +96,17 @@ Global
 		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BF8AF63-F8D2-4EB0-ACB5-EB3AD23B3E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F48C83D0-07BF-485F-938E-810BF86814BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A32A555F-CF85-4813-8D8E-0C9DC76AD2B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A32A555F-CF85-4813-8D8E-0C9DC76AD2B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A32A555F-CF85-4813-8D8E-0C9DC76AD2B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A32A555F-CF85-4813-8D8E-0C9DC76AD2B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AD954AE-B7D3-4E4C-B465-0FC58639B64F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD954AE-B7D3-4E4C-B465-0FC58639B64F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD954AE-B7D3-4E4C-B465-0FC58639B64F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD954AE-B7D3-4E4C-B465-0FC58639B64F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

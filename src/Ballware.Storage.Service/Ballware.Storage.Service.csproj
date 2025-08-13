@@ -37,6 +37,7 @@
       <ProjectReference Include="..\Ballware.Storage.Data\Ballware.Storage.Data.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Jobs\Ballware.Storage.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Provider.Azure\Ballware.Storage.Provider.Azure.csproj" />
+      <ProjectReference Include="..\Ballware.Storage.Provider.Minio\Ballware.Storage.Provider.Minio.csproj" />
     </ItemGroup>
 
     <ItemGroup>
