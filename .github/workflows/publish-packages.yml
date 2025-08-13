@@ -44,14 +44,14 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Swagger
         run: |
-          dotnet tool run swagger tofile \
+          swagger tofile \
             --output ../Ballware.Storage.Service.Client/swagger.json \
             ./bin/Release/net8.0/Ballware.Storage.Service.dll \
             service
       - name: Generate service client code
         working-directory: src/Ballware.Storage.Service.Client
         run: |
-          dotnet tool run nswag run nswag.json
+          nswag run nswag.json
       - name: Pack NuGet packages
         run: |          
           dotnet pack ballware-storage-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release --output ./nupkgs
