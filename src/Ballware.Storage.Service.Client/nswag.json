@@ -22,7 +22,7 @@
       "responseClass": "SwaggerResponse",
       "exceptionClass": "SwaggerException",
       "wrapDtoExceptions": true,
-      "generateSyncMethods": false,
+      "generateSyncMethods": true,
 
       "jsonLibrary": "NewtonsoftJson",
       "dateType": "System.DateTimeOffset",
