@@ -62,7 +62,7 @@ jobs:
           dotnet tool run nswag run nswag.json
       - name: Pack NuGet packages
         run: |          
-	  dotnet restore ballware-storage-service.sln
+          dotnet restore ballware-storage-service.sln
           dotnet pack ballware-storage-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release --output ./nupkgs
       - name: Publish NuGet packages to GitHub Packages
         env:
