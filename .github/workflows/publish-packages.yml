@@ -6,34 +6,42 @@ on:
       - develop
 
 jobs:
-  publish:
+  build_and_pack:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
+    outputs:
+      semver: ${{ steps.gitversion.outputs.SemVer }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version:
-            8.0   
+          fetch-depth: 0      
+      - name: Fix workspace ownership (container)
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"          
       - name: Install GitVersion
-        run: dotnet tool install --global GitVersion.Tool
-      - name: Install swashbuckle CLI
-        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 7.2.0
-      - name: Install nswag CLI
-        run: dotnet tool install --global Nswag.ConsoleCore
-      - name: Fetch GitVersion
-        uses: gittools/actions/gitversion/execute@v0
+        uses: gittools/actions/gitversion/setup@b82e662a7199df56ac962118e506d9efb9830f82 # v4.1.0
         with:
-          useConfigFile: true
+          versionSpec: '6.3.x'          
+      - name: Ensure tool manifest exists & install local tools
+        run: |
+          dotnet new tool-manifest || true
+          dotnet tool update Swashbuckle.AspNetCore.Cli --version 7.2.0
+          dotnet tool update Nswag.ConsoleCore
+      - name: Fetch GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@b82e662a7199df56ac962118e506d9efb9830f82 # v4.1.0
       - name: Restore dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" \
             --name github \
-            --username frankball \
-            --password ${{ secrets.GITHUB_TOKEN }} \
+            --username "${{ github.actor }}" \
+            --password "$GITHUB_TOKEN" \
             --store-password-in-clear-text
           dotnet restore ballware-storage-service.sln
       - name: Build solution
@@ -44,20 +52,23 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Swagger
         run: |
-          swagger tofile \
+          dotnet tool run swagger tofile \
             --output ../Ballware.Storage.Service.Client/swagger.json \
             ./bin/Release/net8.0/Ballware.Storage.Service.dll \
             service
       - name: Generate service client code
         working-directory: src/Ballware.Storage.Service.Client
         run: |
-          nswag run nswag.json
+          dotnet tool run nswag run nswag.json
       - name: Pack NuGet packages
         run: |          
+	  dotnet restore ballware-storage-service.sln
           dotnet pack ballware-storage-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release --output ./nupkgs
       - name: Publish NuGet packages to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.pkg.github.com/ballware/index.json --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+          dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.pkg.github.com/ballware/index.json --api-key $GITHUB_TOKEN --skip-duplicate
       - name: Create version tag on release
         if: github.ref == 'refs/heads/main'
         run: |
@@ -65,34 +76,43 @@ jobs:
           git config user.email "github-actions@github.com"
           git tag v${{ env.GitVersion_SemVer }}
           git push origin refs/tags/v${{ env.GitVersion_SemVer }} refs/heads/main
+  docker_publish:          
+    needs: build_and_pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set environment variables for Docker tags
         run: |
-          echo "DOCKER_TAG=${{ env.GitVersion_SemVer }}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ needs.build_and_pack.outputs.semver }}" >> $GITHUB_ENV
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "DOCKER_TAG2=stable" >> $GITHUB_ENV
           else
             echo "DOCKER_TAG2=latest" >> $GITHUB_ENV
           fi      
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3
         with:
           context: src/.
           file: src/Ballware.Storage.Service/Dockerfile
           platforms: linux/amd64,linux/arm64
           build-args: |
+            GITHUB_USERNAME=${{ github.actor }}
             GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
           push: true
           tags: |
