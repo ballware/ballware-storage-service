@@ -5,6 +5,7 @@ EXPOSE 5001
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
 
+ARG GITHUB_USERNAME
 ARG GITHUB_PAT
 
 WORKDIR /src
@@ -21,7 +22,7 @@ COPY ./Ballware.Storage.Provider.Minio ./Ballware.Storage.Provider.Minio
 COPY ./Ballware.Storage.Service ./Ballware.Storage.Service
 
 WORKDIR "/src/Ballware.Storage.Service"
-RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username frankball --password "$GITHUB_PAT" --store-password-in-clear-text
+RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username "$GITHUB_USERNAME" --password "$GITHUB_PAT" --store-password-in-clear-text
 RUN dotnet restore "Ballware.Storage.Service.csproj"
 RUN dotnet build "Ballware.Storage.Service.csproj" -c Release -o /app/build
 
