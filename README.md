@@ -48,6 +48,16 @@ Mounted routes (prefix → resource):
 Use Swagger UI to explore the concrete operations and models.
 
 
+## Documentation
+
+Detailed backend documentation lives in [`docs/`](docs/README.md):
+
+- [docs/README.md](docs/README.md) – index, quick facts, request flow
+- [docs/api/](docs/api/README.md) – API surface: [User API](docs/api/user-api.md), [Service API](docs/api/service-api.md), [schemas](docs/api/schemas.md), [examples](docs/api/examples.md), [best practices](docs/api/best-practices.md), [known deviations](docs/api/known-deviations.md)
+- [docs/concepts/](docs/concepts/architecture.md) – [architecture](docs/concepts/architecture.md), [tenancy & authorization](docs/concepts/tenancy-and-authorization.md), [storage model](docs/concepts/storage-model.md), [providers & jobs](docs/concepts/storage-providers-and-jobs.md)
+- [docs/openapi/](docs/openapi/README.md) – committed OpenAPI snapshots (`storage.json`, `service.json`) and how to regenerate them (`docs/openapi/fetch-spec.sh`)
+
+
 ## Quick start (local development)
 
 Prerequisites:
