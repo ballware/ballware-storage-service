@@ -9,13 +9,13 @@
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-storage-service&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-storage-service)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-storage-service&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-storage-service)
 
-This repository contains the Ballware Storage Service – the component responsible for binary file storage (attachments) and temporary storage in the Ballware ecosystem. It exposes HTTP APIs, stores file metadata in a relational database (EF Core), and persists file blobs in a provider backend (Azure Blob Storage or MinIO).
+This repository contains the Ballware Storage Service – the component responsible for binary file storage (attachments) and temporary storage in the Ballware ecosystem. It exposes HTTP APIs, stores file metadata in a relational database (EF Core), and persists file blobs in a provider backend (Azure Blob Storage or S3‑compatible storage).
 
 For a full multi‑service setup (Keycloak, Storage, Schema, Meta, …) please use the umbrella repo: https://github.com/ballware/ballware-docker-compose. This README focuses solely on the Storage Service.
 
 - Tech stack: .NET 8, ASP.NET Core, EF Core (PostgreSQL or SQL Server), Serilog, Quartz, AutoMapper
 - AuthN/Z: OAuth2/OIDC with JWT Bearer, scope‑based (storageApi, serviceApi)
-- Storage providers: Azure Blob Storage or MinIO (S3‑compatible)
+- Storage providers: Azure Blob Storage or S3‑compatible backends (AWS SDK for .NET, e.g. SeaweedFS)
 - API docs: Swagger/OpenAPI (two docs: “storage” and “service”)
 
 
@@ -28,7 +28,7 @@ For a full multi‑service setup (Keycloak, Storage, Schema, Meta, …) please u
 - `src/Ballware.Storage.Data.Ef.Postgres/*` – PostgreSQL‑specific implementation/migrations
 - `src/Ballware.Storage.Data.Ef.SqlServer/*` – SQL Server‑specific implementation/migrations
 - `src/Ballware.Storage.Provider.Azure/*` – Azure Blob Storage provider
-- `src/Ballware.Storage.Provider.Minio/*` – MinIO provider
+- `src/Ballware.Storage.Provider.S3/*` – S3 provider (AWS SDK for .NET, S3‑compatible backends like SeaweedFS)
 - `src/Ballware.Storage.Jobs/*` – background jobs (Quartz)
 - `test/*` – unit/integration tests
 
@@ -64,7 +64,7 @@ Prerequisites:
 
 - .NET SDK 8.0+
 - Metadata database: PostgreSQL or SQL Server
-- Blob storage: Azure Blob Storage or MinIO
+- Blob storage: Azure Blob Storage or an S3‑compatible backend (e.g., SeaweedFS)
 - An OIDC provider (e.g., Keycloak) reachable by the service
 
 Steps:
@@ -95,19 +95,21 @@ Steps:
     "AutoMigrations": true
   },
   "Storage": {
-    "Provider": "azure"               // "azure" or "minio"
+    "Provider": "azure"               // "azure" or "s3"
   },
   "AzureStorage": {
     "ConnectionString": "UseDevelopmentStorage=true", // or a real Azure connection
     "ContainerName": "storage"
   },
   // Alternative to Azure:
-  // "MinioStorage": {
-  //   "Endpoint": "https://localhost:9000",
-  //   "AccessKey": "minioadmin",
-  //   "SecretKey": "minioadmin",
+  // "S3Storage": {
+  //   "Endpoint": "localhost:8333",   // host:port, no scheme
+  //   "AccessKey": "s3test",
+  //   "SecretKey": "s3test123",
   //   "BucketName": "storage",
-  //   "UseSSL": true
+  //   "UseSSL": false,                // scheme (http/https) is derived from UseSSL
+  //   "Region": "us-east-1",
+  //   "ForcePathStyle": true
   // },
   "Swagger": {
     "EnableClient": true,
@@ -158,7 +160,7 @@ Key sections:
 - Authorization
 - Meta (EF Core provider for metadata)
 - Storage (selects the blob provider)
-- AzureStorage or MinioStorage (provider‑specific settings)
+- AzureStorage or S3Storage (provider‑specific settings)
 - Trigger (schedules cleanup job)
 - Swagger
 - Cors
@@ -184,18 +186,20 @@ Example (trim to your needs):
     "AutoMigrations": true
   },
   "Storage": {
-    "Provider": "azure"               // or "minio"
+    "Provider": "azure"               // or "s3"
   },
   "AzureStorage": {
     "ConnectionString": "UseDevelopmentStorage=true",
     "ContainerName": "storage"
   },
-  "MinioStorage": {
-    "Endpoint": "https://localhost:9000",
+  "S3Storage": {
+    "Endpoint": "localhost:8333",     // host:port, no scheme
     "AccessKey": "<key>",
     "SecretKey": "<secret>",
     "BucketName": "storage",
-    "UseSSL": true
+    "UseSSL": false,                  // scheme (http/https) is derived from UseSSL
+    "Region": "us-east-1",
+    "ForcePathStyle": true
   },
   "Trigger": {
     "TemporaryCleanupCron": "0 0/10 * ? * * *" // default: every 10 minutes
@@ -229,7 +233,8 @@ Example (trim to your needs):
 Notes:
 
 - `Meta.Provider`: `postgres` or `mssql`; the matching EF configuration is applied automatically if `ConnectionStrings:MetaStorageConnection` is present.
-- `Storage.Provider`: `azure` or `minio`; configure the corresponding section (`AzureStorage` or `MinioStorage`).
+- `Storage.Provider`: `azure` or `s3`; configure the corresponding section (`AzureStorage` or `S3Storage`).
+- MinIO: the former `minio` provider and `MinioStorage` section are no longer supported (breaking change). Configure S3‑compatible backends (e.g., SeaweedFS) via `Storage.Provider=s3` and the `S3Storage` section.
 - Swagger: with `EnableClient=true` the service exposes two Swagger docs ("storage" and "service") with OIDC security.
 - Background jobs: cleanup for temporary files is scheduled via Quartz using `Trigger.TemporaryCleanupCron`.
 
@@ -288,7 +293,7 @@ dotnet test
 
 Notes:
 
-- Some integration tests require reachable infrastructure (e.g., PostgreSQL, optionally MinIO/Azure emulator). Adjust the test configuration or provide test containers accordingly.
+- Some integration tests require reachable infrastructure or test containers (e.g., PostgreSQL, SeaweedFS, Azurite). S3 provider tests pull `chrislusf/seaweedfs` via Testcontainers and read test credentials from `TestSettings:AccessKey`/`TestSettings:SecretKey` (env: `TestSettings__AccessKey`/`TestSettings__SecretKey`). Adjust the test configuration or provide test containers accordingly.
 - Pure unit tests do not require external infrastructure.
 
 

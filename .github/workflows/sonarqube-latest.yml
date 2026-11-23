@@ -49,8 +49,8 @@ jobs:
       - name: Run coverage for all test projects
         env:
           TestSettings__DatabasePassword: ${{ secrets.TEST_STORAGE_PASSWORD }}
-          TestSettings__AccessKey: ${{ secrets.TEST_MINIO_ACCESSKEY }}
-          TestSettings__SecretKey: ${{ secrets.TEST_MINIO_SECRETKEY }}
+          TestSettings__AccessKey: ${{ secrets.TEST_S3_ACCESSKEY }}
+          TestSettings__SecretKey: ${{ secrets.TEST_S3_SECRETKEY }}
         run: |
           dotnet test ballware-storage-service.sln --no-build --configuration Release \
             --collect:"XPlat Code Coverage" \

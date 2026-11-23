@@ -88,13 +88,15 @@ at the 0.0.2 shared-repository API.
 downloadable URL and not meant to be interpreted by clients. Layout is built by the providers:
 
 - Attachment: `{tenantId}/{entity}/{ownerId}/{fileName}`
-  (`src/Ballware.Storage.Provider.Minio/Internal/MinioAttachmentStorageProvider.cs:38-41`,
+  (`src/Ballware.Storage.Provider.S3/Internal/S3AttachmentStorageProvider.cs:41-44`,
   `Provider.Azure/Internal/AzureAttachmentStorageProvider.cs:21-23`)
 - Temporary: `{tenantId}/temporary/{temporaryId}/{fileName}`
-  (`MinioTemporaryStorageProvider.cs:38-40`, `AzureTemporaryStorageProvider.cs:21-23`)
+  (`S3TemporaryStorageProvider.cs:41-44`, `AzureTemporaryStorageProvider.cs:21-23`)
 
-Because the raw `fileName` is embedded, a file name containing `/` or `..` would alter the key
-layout — see best practices and deviation 9 in [api/known-deviations.md](../api/known-deviations.md).
+Because the `fileName` is embedded, a file name containing `/` or `..` would alter the key layout —
+the S3 provider normalizes the file name segment (collapses leading/duplicate slashes, drops `.`
+segments, rejects `..` segments with `ArgumentException`), the Azure provider embeds the raw name —
+see best practices and deviation 9 in [api/known-deviations.md](../api/known-deviations.md).
 
 ## Temporary expiry
 
