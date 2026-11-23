@@ -8,7 +8,7 @@ layer of those services.
 ## Policies
 
 Two named policies are built from the `Authorization` options
-(`src/Ballware.Storage.Service/Startup.cs:105-121`):
+(`src/Ballware.Storage.Service/Startup.cs:107-123`):
 
 | Policy | Satisfied when | Config knob (default) |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ Two named policies are built from the `Authorization` options
 | `serviceApi` | the JWT `scope` claim contains any value from `Authorization:RequiredServiceScopes` (`serviceApi`) | `RequiredServiceScopes`, `AuthorizationOptions.cs:15` |
 
 Authentication is JWT bearer against `Authorization:Authority` + `Authorization:Audience` with
-`MapInboundClaims = false`, so claim types are taken verbatim (`Startup.cs:89-103`).
+`MapInboundClaims = false`, so claim types are taken verbatim (`Startup.cs:91-105`).
 
 There is **no fallback policy**: only routes explicitly decorated with
 `.RequireAuthorization("storageApi"|"serviceApi")` are protected. Every route *without* it is
@@ -44,14 +44,14 @@ The claims used are configurable (`Configuration/AuthorizationOptions.cs:18-24`)
 
 ## Repository-level behavior
 
-Repositories derive from `TenantableRepository` in `Ballware.Shared.Data.Ef` **0.0.2**
+Repositories derive from `TenantableBaseRepository` in `Ballware.Shared.Data.Ef` **1.2.0**
 (e.g. `src/Ballware.Storage.Data.Ef/Repository/AttachmentBaseRepository.cs:9`) and are registered
 by the EF provider packages (`Data.Ef.Postgres/ServiceCollectionExtensions.cs:30-34`). Per shared
 repository behavior at this version:
 
 - **Tenant filter:** reads/writes are scoped to the tenant (`WHERE tenant_id = @tenantId AND
   uuid = @id` for id lookups) plus the storage-specific filters
-  (`AttachmentBaseRepository.cs:17-41`, `TemporaryBaseRepository.cs:19-24`).
+  (`AttachmentBaseRepository.cs:18-45`, `TemporaryBaseRepository.cs:19-24`).
 - **Audit fields:** `creator_id`/`create_stamp` and `last_changer_id`/`last_change_stamp` are
   populated from the `userId` passed to `SaveAsync`/`RemoveAsync` (persistable columns
   `Persistables/Blob.cs:22-35`; endpoint call sites e.g. `AttachmentEndpoint.cs:195`, `216`).
@@ -80,7 +80,7 @@ In `ballware-docker-compose/realms/ballware-realm.tpl`:
 
 The scope values issued by Keycloak must match the service's configured
 `RequiredUserScopes`/`RequiredServiceScopes` strings, because the policies compare the `scope`
-claim values token-verbatim after splitting on spaces (`Startup.cs:109-113`, `118-121`). A mismatch
+claim values token-verbatim after splitting on spaces (`Startup.cs:111-115`, `120-123`). A mismatch
 (e.g. compose setting only `Authorization__RequiredScopes`) yields 401s on every protected route —
 see deviation 10 in [api/known-deviations.md](../api/known-deviations.md).
 

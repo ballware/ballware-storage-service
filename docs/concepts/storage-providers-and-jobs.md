@@ -3,7 +3,7 @@
 ## Provider selection
 
 `Storage.Provider` selects the blob backend; only the provider whose section is **both** selected
-and configured is registered (`src/Ballware.Storage.Service/Startup.cs:171-178`,
+and configured is registered (`src/Ballware.Storage.Service/Startup.cs:174-181`,
 `Configuration/StorageOptions.cs:5-8`):
 
 - `"azure"` → `AddBallwareAzureBlobStorage` (`Provider.Azure/ServiceCollectionExtensions.cs:10`)

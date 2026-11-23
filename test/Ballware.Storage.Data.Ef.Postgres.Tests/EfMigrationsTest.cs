@@ -1,5 +1,7 @@
 using Ballware.Storage.Data.Ef.Configuration;
 using Ballware.Storage.Data.Ef.Postgres.Tests.Utils;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,10 +24,11 @@ public class EfMigrationsTest : DatabaseBackedBaseTest
         });
 
         PreparedBuilder.Services.AddBallwareMetaStorageForPostgres(storageOptions, connectionString);
-        PreparedBuilder.Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareMetaStorageMappings();
-        });
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareMetaStorageMappings();
+        
+        PreparedBuilder.Services.AddSingleton(mapsterConfig);
+        PreparedBuilder.Services.AddScoped<IMapper, ServiceMapper>();
 
         var app = PreparedBuilder.Build();
 

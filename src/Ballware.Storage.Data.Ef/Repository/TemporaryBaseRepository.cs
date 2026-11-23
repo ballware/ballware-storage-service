@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Shared.Data.Ef.Repository;
 using Ballware.Shared.Data.Repository;
 using Ballware.Storage.Data.Public;
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Storage.Data.Ef.Repository;
 
-public class TemporaryBaseRepository : TenantableRepository<Public.Temporary, Persistables.Temporary>, ITemporaryRepository
+public class TemporaryBaseRepository : TenantableBaseRepository<Public.Temporary, Persistables.Temporary>, ITemporaryRepository
 {
     private IStorageDbContext StorageContext { get; }
     

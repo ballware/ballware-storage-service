@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <!-- AWSSDK v4 pulls System.IO.Hashing 11.x (netstandard2.0 works on net8.0, untested flag only) -->
+        <!-- AWSSDK v4 pulls System.IO.Hashing 11.x (netstandard2.0 works on net10.0, untested flag only) -->
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
 
@@ -16,8 +16,8 @@
 
     <ItemGroup>
         <PackageReference Include="AWSSDK.S3" Version="4.1.2" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />
     </ItemGroup>
 
     <ItemGroup>

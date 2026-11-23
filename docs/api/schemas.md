@@ -70,7 +70,7 @@ persisted `ContentType` — set it explicitly.
 
 ## `ProblemDetails` (500 only)
 
-Unhandled exceptions produce RFC 7807-style JSON (`Startup.cs:242-253`):
+Unhandled exceptions produce RFC 7807-style JSON (`Startup.cs:243-254`):
 
 ```json
 {

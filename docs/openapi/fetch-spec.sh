@@ -26,7 +26,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
 TOOL_PACKAGE="Swashbuckle.AspNetCore.Cli"
-TOOL_VERSION="7.2.0"
+TOOL_VERSION="10.1.3"
 CONFIG_PROJECT="src/Ballware.Storage.Service"
 OUTPUT_DIR="docs/openapi"
 
@@ -41,10 +41,10 @@ step "Building $CONFIG_PROJECT (Release)"
 dotnet build "$CONFIG_PROJECT" --configuration Release
 
 step "Ensuring $TOOL_PACKAGE $TOOL_VERSION is available"
-# The tool version must match the service's Swashbuckle packages (7.2.0) — see docs/openapi/README.md.
+# The tool version must match the service's Swashbuckle packages (10.1.3) — see docs/openapi/README.md.
 # Install via the local tool manifest, exactly like CI does:
 #   dotnet new tool-manifest || true
-#   dotnet tool update Swashbuckle.AspNetCore.Cli --version 7.2.0
+#   dotnet tool update Swashbuckle.AspNetCore.Cli --version 10.1.3
 # The manifest file is only needed for the install and is removed again at the end of this
 # script when the repository did not have one (keeps the working tree clean).
 # Invocation: prefer the tool variant from the NuGet package cache that matches the service's
@@ -84,7 +84,7 @@ export Authorization__Authority="https://localhost"
 cd "$CONFIG_PROJECT"
 
 for doc in storage service; do
-  "${SWAGGER_RUNNER[@]}" tofile --output "$REPO_ROOT/$OUTPUT_DIR/$doc.json" "bin/Release/net8.0/Ballware.Storage.Service.dll" "$doc"
+  "${SWAGGER_RUNNER[@]}" tofile --output "$REPO_ROOT/$OUTPUT_DIR/$doc.json" "bin/Release/$TARGET_FRAMEWORK/Ballware.Storage.Service.dll" "$doc"
 done
 
 cd "$REPO_ROOT"

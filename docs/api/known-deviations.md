@@ -30,7 +30,7 @@ proposals R4/H below.
 ## 2. The global `security` block names `storageApi` in both documents
 
 **Status quo.** SwaggerGen adds one global security requirement built from
-`RequiredUserScopes.Split(" ")` (`Startup.cs:208-216`), so the `service` document — whose routes all
+`RequiredUserScopes.Split(" ")` (`Startup.cs:211-218`), so the `service` document — whose routes all
 enforce `serviceApi` — declares `oidc: ["storageApi"]`
 (snapshots: [openapi/service.json](../openapi/service.json) `security`; also
 `src/Ballware.Storage.Service.Client/swagger.json:745-751`).
@@ -76,7 +76,7 @@ fallback declaration.
 
 **Status quo.** `Results.NotFound("…")` serializes a JSON *string* (`AttachmentEndpoint.cs:211`,
 `285`, `292`, `304`, `311`, `323`, `342`; `TemporaryEndpoint.cs:81`, `88`, `126`); only 500 goes
-through ProblemDetails (`Startup.cs:242-253`).
+through ProblemDetails (`Startup.cs:243-254`).
 
 **Implication.** Clients using a `payload?.Message` ProblemDetails fallback silently lose the 404
 message — e.g. "is this a missing attachment or a transient error?" distinctions degrade. Note the
@@ -174,9 +174,9 @@ None implemented — this is the change plan for follow-up work.
 
 - Per-document `IDocumentFilter` setting the document's `security` array
   (`storage` → `RequiredUserScopes`, `service` → `RequiredServiceScopes`) instead of the single
-  global requirement (`Startup.cs:208-216`) — fixes deviation 2.
+  global requirement (`Startup.cs:211-218`) — fixes deviation 2.
 - Extend CI/snapshot generation to also export the `storage` document
-  (currently only `service` is generated, `publish-packages.yml:49-57`) — `docs/openapi/fetch-spec.sh`
+  (currently only `service` is generated, `publish-packages.yml:50-57`) — `docs/openapi/fetch-spec.sh`
   already does both locally.
 - Rename `RequiredScopes` → `RequiredUserScopes` in `appsettings.Swagger.json` (deviation 10).
 - Drop the misleading `nullable: true` or the `required` flags consistently (deviation 6); declare
