@@ -4,15 +4,15 @@ The committed files in this folder are the source of truth the API pages were wr
 
 | File | Content |
 | --- | --- |
-| [storage.json](storage.json) | `ballware Storage User API` — 6 paths, 1 component schema (`Attachment`), OpenAPI `3.0.1` |
-| [service.json](service.json) | `ballware Storage Service API` — 12 paths, 1 component schema (`Attachment`), OpenAPI `3.0.1` |
+| [storage.json](storage.json) | `ballware Storage User API` — 6 paths, 1 component schema (`Attachment`), OpenAPI `3.0.4` |
+| [service.json](service.json) | `ballware Storage Service API` — 12 paths, 1 component schema (`Attachment`), OpenAPI `3.0.4` |
 | [manifest.json](manifest.json) | Provenance: generator tool + version, environment, git describe reference, `fetchedAt`, per-document openapi/title/pathCount/schemaCount |
 | [fetch-spec.sh](fetch-spec.sh) | Generator script |
 
 ## How the snapshot is produced
 
 Generation runs **offline from the built assembly** — no database, no IdP. The CI pipeline uses the
-same mechanism for the client build (`.github/workflows/publish-packages.yml:49-57`); this folder
+same mechanism for the client build (`.github/workflows/publish-packages.yml:50-57`); this folder
 extends it to also export the `storage` (user) document, which CI does not currently generate.
 
 Run from the repository root (idempotent — it rebuilds and rewrites the three files):
@@ -25,23 +25,23 @@ What it does:
 
 1. `dotnet build src/Ballware.Storage.Service --configuration Release`
 2. Ensures the pinned tool via the local tool manifest (what CI does):
-   `dotnet new tool-manifest || true` + `dotnet tool update Swashbuckle.AspNetCore.Cli --version 7.2.0`.
+   `dotnet new tool-manifest || true` + `dotnet tool update Swashbuckle.AspNetCore.Cli --version 10.1.3`.
    If the repository had no tool manifest before the run, the one created by the script is removed
    again afterwards — the working tree stays clean.
 3. Invokes the tool. Because host SDKs newer than the tool's highest bundled target framework make
    `dotnet tool run swagger` pick a tool variant that may need a runtime which is not installed
-   (the 7.2.0 package bundles `net6.0`, `net8.0` and `net9.0` variants), the script invokes the
+   (the 10.1.3 package bundles `net8.0`, `net9.0` and `net10.0` variants), the script invokes the
    variant from the NuGet package cache that matches the service's target framework
-   (`net8.0`) — it always binds against the same framework as the service assembly:
-   `~/.nuget/packages/swashbuckle.aspnetcore.cli/7.2.0/tools/net8.0/any/dotnet-swagger.dll`
+   (`net10.0`) — it always binds against the same framework as the service assembly:
+   `~/.nuget/packages/swashbuckle.aspnetcore.cli/10.1.3/tools/net10.0/any/dotnet-swagger.dll`
 4. Exports both documents with the Swagger environment:
 
    ```bash
    export ASPNETCORE_ENVIRONMENT=Swagger
    export Authorization__Authority=https://localhost
    cd src/Ballware.Storage.Service
-   swagger tofile --output ../../docs/openapi/storage.json bin/Release/net8.0/Ballware.Storage.Service.dll storage
-   swagger tofile --output ../../docs/openapi/service.json bin/Release/net8.0/Ballware.Storage.Service.dll service
+   swagger tofile --output ../../docs/openapi/storage.json bin/Release/net10.0/Ballware.Storage.Service.dll storage
+   swagger tofile --output ../../docs/openapi/service.json bin/Release/net10.0/Ballware.Storage.Service.dll service
    ```
 
 5. Validates each file (parses as JSON, `openapi` starts with `3.`, `paths` non-empty) and writes
@@ -73,18 +73,18 @@ That URL is a placeholder, **not** a real IdP discovery endpoint. Do not wire cl
 
 ## Tool version pin
 
-Keep `Swashbuckle.AspNetCore.Cli` at **7.2.0** — it matches the service's Swashbuckle packages
-(`src/Ballware.Storage.Service/Ballware.Storage.Service.csproj:27-29`) and the CI tool pin
-(`.github/workflows/publish-packages.yml:32`). Sibling services use Swashbuckle 10.x; **this repo
-stays on 7.2.0** — other versions reformat the documents (e.g. OpenAPI `3.0.4` instead of `3.0.1`)
-and create spurious diffs.
+Keep `Swashbuckle.AspNetCore.Cli` at **10.1.3** — it matches the service's Swashbuckle packages
+(`src/Ballware.Storage.Service/Ballware.Storage.Service.csproj:30-32`) and the CI tool pin
+(`.github/workflows/publish-packages.yml:32`). Swashbuckle 10.x emits OpenAPI `3.0.4` and adds a
+`tags` array to the documents; the older 7.2.0 snapshots (`3.0.1`, no tags) are superseded — always
+regenerate with the pinned version so the snapshots stay internally consistent.
 
 ## Private feed (restore requirements)
 
-The build needs the private `Ballware.Shared.* 0.0.2` packages from GitHub Packages. Locally they
+The build needs the private `Ballware.Shared.* 1.2.0` packages from GitHub Packages. Locally they
 resolve from the `~/.nuget/packages` cache; in a clean CI environment a GitHub source with a PAT is
 required (CI does this via `dotnet nuget add source https://nuget.pkg.github.com/ballware/...` with
-the workflow token, `.github/workflows/publish-packages.yml:38-46`).
+the workflow token, `.github/workflows/publish-packages.yml:37-46`).
 
 ## Live-server fallback
 

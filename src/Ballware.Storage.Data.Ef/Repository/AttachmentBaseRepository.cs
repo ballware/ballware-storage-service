@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Shared.Data.Ef.Repository;
 using Ballware.Shared.Data.Repository;
 using Ballware.Storage.Data.Repository;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Storage.Data.Ef.Repository;
 
-public class AttachmentBaseRepository : TenantableRepository<Public.Attachment, Persistables.Attachment>, IAttachmentRepository
+public class AttachmentBaseRepository : TenantableBaseRepository<Public.Attachment, Persistables.Attachment>, IAttachmentRepository
 {
     private IStorageDbContext StorageContext { get; } 
     
@@ -41,6 +41,6 @@ public class AttachmentBaseRepository : TenantableRepository<Public.Attachment, 
         return await StorageContext.Attachments
             .Where(a => a.TenantId == tenantId && a.Entity == entity && a.OwnerId == ownerId && a.FileName == fileName)
             .FirstOrDefaultAsync()
-            .ContinueWith(t => Mapper.Map<Public.Attachment>(t.Result));
+            .ContinueWith(t => t.Result == null ? null : Mapper.Map<Public.Attachment>(t.Result));
     }
 }

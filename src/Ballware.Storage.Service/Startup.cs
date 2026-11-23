@@ -11,12 +11,14 @@ using Ballware.Storage.Provider.Azure.Configuration;
 using Ballware.Storage.Provider.S3;
 using Ballware.Storage.Provider.S3.Configuration;
 using Ballware.Storage.Service.Configuration;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Newtonsoft.Json.Serialization;
 using Quartz;
 using Serilog;
@@ -152,10 +154,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         
         Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
 
-        Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareMetaStorageMappings();
-        });
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareMetaStorageMappings();
+        
+        Services.AddSingleton(mapsterConfig);
+        Services.AddScoped<IMapper, ServiceMapper>();
 
         Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
 
@@ -185,13 +188,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("storage", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("storage", new OpenApiInfo
                 {
                     Title = "ballware Storage User API",
                     Version = "v1"
                 });
                 
-                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("service", new OpenApiInfo
                 {
                     Title = "ballware Storage Service API",
                     Version = "v1"
@@ -201,17 +204,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
                 c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.OpenIdConnect,
+                    Type = SecuritySchemeType.OpenIdConnect,
                     OpenIdConnectUrl = new Uri(authorizationOptions.Authority + "/.well-known/openid-configuration")
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement((document) => new OpenApiSecurityRequirement
                 {
                     {
-                        new OpenApiSecurityScheme {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oidc" }
-                        },
-                        authorizationOptions.RequiredUserScopes.Split(" ")
+                        new OpenApiSecuritySchemeReference("oidc", document),
+                        authorizationOptions.RequiredUserScopes.Split(" ").ToList()
                     }
                 });
             });

@@ -9,7 +9,7 @@ jobs:
   build_and_pack:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/dotnet/sdk:8.0
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     outputs:
       semver: ${{ steps.gitversion.outputs.SemVer }}
     steps:
@@ -29,7 +29,7 @@ jobs:
       - name: Ensure tool manifest exists & install local tools
         run: |
           dotnet new tool-manifest || true
-          dotnet tool update Swashbuckle.AspNetCore.Cli --version 7.2.0
+          dotnet tool update Swashbuckle.AspNetCore.Cli --version 10.1.3
           dotnet tool update Nswag.ConsoleCore
       - name: Fetch GitVersion
         id: gitversion
@@ -54,7 +54,7 @@ jobs:
         run: |
           dotnet tool run swagger tofile \
             --output ../Ballware.Storage.Service.Client/swagger.json \
-            ./bin/Release/net8.0/Ballware.Storage.Service.dll \
+            ./bin/Release/net10.0/Ballware.Storage.Service.dll \
             service
       - name: Generate service client code
         working-directory: src/Ballware.Storage.Service.Client

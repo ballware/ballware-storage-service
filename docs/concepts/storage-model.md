@@ -49,7 +49,7 @@ Persistable → table `temporary` (`Postgres/Migrations/…Initial.cs:39-56`): s
 
 ### Mapping
 
-AutoMapper (`src/Ballware.Storage.Data.Ef/Internal/StorageMappingProfile.cs:9-23`) maps
+Mapster (`src/Ballware.Storage.Data.Ef/Internal/StorageMappingProfile.cs:9-21`) maps
 public `Id` ⇄ persistable `Uuid` and **ignores** the internal `Id` on the write direction — public
 DTOs never carry the bigint key.
 
@@ -80,7 +80,7 @@ the public `Attachment`/`Temporary` DTOs only expose `ExpiryDate` as a time valu
 Shared repositories take a query `identifier` parameter. In this service it is always the constant
 `"primary"` (`AttachmentPrimaryQuery` `AttachmentEndpoint.cs:15`, `TemporaryPrimaryQuery`
 `TemporaryEndpoint.cs:14`). It selects no alternate query set and derives no rights — a pure label
-at the 0.0.2 shared-repository API.
+at the 1.2.0 shared-repository API.
 
 ## `StoragePath`
 

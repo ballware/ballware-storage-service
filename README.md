@@ -13,7 +13,7 @@ This repository contains the Ballware Storage Service – the component responsi
 
 For a full multi‑service setup (Keycloak, Storage, Schema, Meta, …) please use the umbrella repo: https://github.com/ballware/ballware-docker-compose. This README focuses solely on the Storage Service.
 
-- Tech stack: .NET 8, ASP.NET Core, EF Core (PostgreSQL or SQL Server), Serilog, Quartz, AutoMapper
+- Tech stack: .NET 10, ASP.NET Core, EF Core (PostgreSQL or SQL Server), Serilog, Quartz, Mapster
 - AuthN/Z: OAuth2/OIDC with JWT Bearer, scope‑based (storageApi, serviceApi)
 - Storage providers: Azure Blob Storage or S3‑compatible backends (AWS SDK for .NET, e.g. SeaweedFS)
 - API docs: Swagger/OpenAPI (two docs: “storage” and “service”)
@@ -62,7 +62,7 @@ Detailed backend documentation lives in [`docs/`](docs/README.md):
 
 Prerequisites:
 
-- .NET SDK 8.0+
+- .NET SDK 10.0+
 - Metadata database: PostgreSQL or SQL Server
 - Blob storage: Azure Blob Storage or an S3‑compatible backend (e.g., SeaweedFS)
 - An OIDC provider (e.g., Keycloak) reachable by the service

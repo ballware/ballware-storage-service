@@ -50,7 +50,7 @@ The operation inventory below was extracted from the committed snapshots and mat
   lowercase is what the generated clients emit). `entity`, `filename` are plain strings — URL-encode
   them client-side (`encodeURIComponent` in JS, `Uri.EscapeDataString` in .NET); `/` inside a file
   name would break the segment ([best-practices.md](best-practices.md)).
-- **Field casing.** All JSON is PascalCase (`Startup.cs:136-151`).
+- **Field casing.** All JSON is PascalCase (`Startup.cs:138-153`).
 - **Multipart uploads.** Part name is `files` (OpenAPI declaration, .NET clients) — the Angular
   client sends `files[]`; both bind to `IFormFileCollection files` because the ASP.NET binder
   accepts the indexed variant (`AttachmentEndpoint.cs:171`, `253`; `TemporaryEndpoint.cs:94`), and
@@ -73,7 +73,7 @@ The operation inventory below was extracted from the committed snapshots and mat
 | 201 | uploads (`Results.Created()`) | **empty body** — created metadata is **not** returned (deviation 3) |
 | 401 | protected routes without a matching scope | empty |
 | 404 | metadata row missing, or `StoragePath` empty, or blob missing in provider | **JSON string** message — not ProblemDetails (deviation 5) |
-| 500 | unhandled exception | `application/problem+json` (`Startup.cs:242-253`) |
+| 500 | unhandled exception | `application/problem+json` (`Startup.cs:243-254`) |
 
 ## Consumers (observed in the sibling services)
 

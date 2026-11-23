@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.4",
   "info": {
     "title": "ballware Storage User API",
     "version": "v1"
@@ -358,6 +358,14 @@
       "oidc": [
         "storageApi"
       ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Attachment"
+    },
+    {
+      "name": "Temporary"
     }
   ]
 }

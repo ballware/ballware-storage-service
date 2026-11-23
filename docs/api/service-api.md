@@ -3,7 +3,7 @@
 Twelve operations for backend-to-backend calls. The tenant is **always** the `{tenantId}` path
 segment; `behalf-of-user` operations additionally take `{userId}`, which is used **only to fill
 audit columns** (`creator_id`, `last_changer_id`) — it does not authorize, filter, or validate
-anything (`Startup.cs:105-121` gates on the `serviceApi` scope; repository audit per
+anything (`Startup.cs:107-123` gates on the `serviceApi` scope; repository audit per
 `Persistables/Blob.cs:22-35`). Snapshot:
 [openapi/service.json](../openapi/service.json) (12 paths, schema `Attachment`).
 
