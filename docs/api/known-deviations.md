@@ -129,14 +129,18 @@ deployments.
 
 ## 9. `StoragePath` embeds the raw file name
 
-**Status quo.** `GenerateBlobPath` concatenates `{fileName}` without sanitization
-(`MinioAttachmentStorageProvider.cs:38-41`, `AzureAttachmentStorageProvider.cs:21-23`), and the
-unique index includes the raw name (`StorageModelBaseCustomizer.cs:39`).
+**Status quo.** `GenerateBlobPath` embeds `{fileName}` in the object key. The S3 provider normalizes
+the name segment — leading/duplicate slashes collapse, `.` segments drop, `..` segments throw
+`ArgumentException` (`S3AttachmentStorageProvider.cs:46-58`) — while the Azure provider concatenates
+without sanitization (`AzureAttachmentStorageProvider.cs:21-23`); the unique index includes the raw
+name (`StorageModelBaseCustomizer.cs:39`).
 
 **Implication.** A file name containing `/` or `..` reshapes the object key outside the intended
 `{tenant}/{entity}/{owner}/` prefix, and such names can't round-trip via by-filename URL segments
-anyway (route matching + encoding). Today callers (backend services with fixed names) never send
-such names, so the exposure is latent rather than active.
+anyway (route matching + encoding). The S3 provider already normalizes slashes and rejects `..`
+segments outright; the exposure now only persists in the Azure provider and in the unvalidated
+endpoint input. Today callers (backend services with fixed names) never send such names, so the
+exposure is latent rather than active.
 
 **Recommendation.** Harden only with coordinated rollout (it can orphan existing blobs keyed by
 old names): sanitize before `GenerateBlobPath` (strip path separators and `..`) **and** decide

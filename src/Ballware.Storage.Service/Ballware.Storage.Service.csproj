@@ -5,6 +5,8 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <!-- AWSSDK v4 pulls System.IO.Hashing 11.x (netstandard2.0 works on net8.0, untested flag only) -->
+        <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
     
     <ItemGroup>
@@ -37,7 +39,7 @@
       <ProjectReference Include="..\Ballware.Storage.Data\Ballware.Storage.Data.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Jobs\Ballware.Storage.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Provider.Azure\Ballware.Storage.Provider.Azure.csproj" />
-      <ProjectReference Include="..\Ballware.Storage.Provider.Minio\Ballware.Storage.Provider.Minio.csproj" />
+      <ProjectReference Include="..\Ballware.Storage.Provider.S3\Ballware.Storage.Provider.S3.csproj" />
     </ItemGroup>
 
     <ItemGroup>

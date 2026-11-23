@@ -8,6 +8,8 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <SonarQubeExclude>true</SonarQubeExclude>
+        <!-- AWSSDK v4 pulls System.IO.Hashing 11.x (netstandard2.0 works on net8.0, untested flag only) -->
+        <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,7 +26,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-        <PackageReference Include="Testcontainers.Minio" Version="4.6.0" />
+        <PackageReference Include="Testcontainers" Version="4.17.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,18 +34,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Ballware.Storage.Provider.Minio\Ballware.Storage.Provider.Minio.csproj" />
+        <ProjectReference Include="..\..\src\Ballware.Storage.Provider.S3\Ballware.Storage.Provider.S3.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="appsettings.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="appsettings.local.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

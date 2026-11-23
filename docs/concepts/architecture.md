@@ -1,7 +1,8 @@
 # Architecture
 
 The Storage Service is a .NET 8 ASP.NET Core minimal-API service that stores **file blobs** in a
-provider backend (Azure Blob Storage or MinIO) and their **metadata rows** in a relational database
+provider backend (Azure Blob Storage or an S3-compatible backend via AWS SDK for .NET) and their
+**metadata rows** in a relational database
 (EF Core on PostgreSQL or SQL Server). Two logical API surfaces — User API and Service API — share
 the same resources but differ in how the tenant is resolved and which authorization policy applies
 (see [tenancy-and-authorization.md](tenancy-and-authorization.md)).
@@ -17,7 +18,7 @@ the same resources but differ in how the tenant is resolved and which authorizat
 | `src/Ballware.Storage.Data.Ef.Postgres` | Npgsql wiring, migrations, `InitializationWorker` (hosted EF migration runner) |
 | `src/Ballware.Storage.Data.Ef.SqlServer` | SQL Server wiring and migrations |
 | `src/Ballware.Storage.Provider.Azure` | Azure Blob Storage provider |
-| `src/Ballware.Storage.Provider.Minio` | MinIO (S3-compatible) provider |
+| `src/Ballware.Storage.Provider.S3` | S3 provider (AWS SDK for .NET, S3-compatible backends like SeaweedFS) |
 | `src/Ballware.Storage.Provider` | Shared provider contracts project (metadata interfaces live in `Ballware.Storage.Metadata`) |
 | `src/Ballware.Storage.Metadata` | Provider interfaces `IAttachmentStorageProvider`, `ITemporaryStorageProvider` |
 | `src/Ballware.Storage.Jobs` | Quartz registration and the `TemporaryCleanupJob` |
@@ -57,7 +58,7 @@ Response fields therefore appear as `Id`, `Entity`, `OwnerId`, `FileName`, `Cont
 `Startup.InitializeServices()` wires, in order (`Startup.cs:32-221`):
 
 - options binding with validate-on-start for `Authorization`, `Meta`, `Storage`, `Trigger`,
-  `Swagger`, and optionally `AzureStorage`/`MinioStorage` (`Startup.cs:45-77`); a missing
+  `Swagger`, and optionally `AzureStorage`/`S3Storage` (`Startup.cs:45-77`); a missing
   `Authorization`/`Meta`/`Storage` section aborts startup with `ConfigurationException`
   (`Startup.cs:79-82`)
 - JWT bearer authentication against `Authorization.Authority`/`Audience`, with
@@ -68,7 +69,7 @@ Response fields therefore appear as `Id`, `Entity`, `OwnerId`, `FileName`, `Cont
   configured `TenantClaim`/`UserIdClaim`/`RightClaim` (`Startup.cs:155-160`)
 - EF provider selection (`Meta.Provider` = `postgres` | `mssql` +
   `ConnectionStrings:MetaStorageConnection`, `Startup.cs:162-169`)
-- storage provider selection (`Storage.Provider` = `azure` | `minio`, `Startup.cs:171-178`)
+- storage provider selection (`Storage.Provider` = `azure` | `s3`, `Startup.cs:171-178`)
 - Quartz background jobs (`Startup.cs:180`, see [storage-providers-and-jobs.md](storage-providers-and-jobs.md))
 - Swagger generation with the two documents and an `oidc` OpenIdConnect security scheme
   (`Startup.cs:184-220`)

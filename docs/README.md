@@ -16,7 +16,7 @@ snapshots the pages are derived from.
 | [concepts/architecture.md](concepts/architecture.md) | Project layout and responsibilities, configuration order, JSON conventions, error contract, request limits, job/init wiring |
 | [concepts/tenancy-and-authorization.md](concepts/tenancy-and-authorization.md) | OIDC/JWT validation, scope → policy mapping, tenant resolution per API surface, repository-level tenancy filtering, Keycloak clients |
 | [concepts/storage-model.md](concepts/storage-model.md) | Public DTOs vs. persistables, table columns, indexes, unique file-name rule, UTC handling, `StoragePath` layout, temporary expiry |
-| [concepts/storage-providers-and-jobs.md](concepts/storage-providers-and-jobs.md) | Provider selection (Azure/MinIO), container/bucket behavior, streaming, temporary cleanup job |
+| [concepts/storage-providers-and-jobs.md](concepts/storage-providers-and-jobs.md) | Provider selection (Azure/S3), container/bucket behavior, streaming, temporary cleanup job |
 | [api/README.md](api/README.md) | API surface and conventions of the `storage` and `service` documents, status-code matrix, consumers |
 | [api/user-api.md](api/user-api.md) | The 6 User API (`storage`) operations with parameters and examples |
 | [api/service-api.md](api/service-api.md) | The 12 Service API (`service`) operations, bulk-drop semantics, behalf-of-user auditing |
@@ -65,8 +65,8 @@ endpoint handler
   |  Service API: {tenantId} from the path, {userId}
   |  recorded as "behalf of user" for audit fields
   v
-storage provider (Azure Blob or MinIO, blob path
-  {tenantId}/{entity}/{ownerId}/{fileName})                Provider.Azure/…, Provider.Minio/…
+storage provider (Azure Blob or S3, blob path
+  {tenantId}/{entity}/{ownerId}/{fileName})                Provider.Azure/…, Provider.S3/…
   +
 tenantable repository (WHERE tenant_id = …, audit fields
   from userId, no rights check)                            Data.Ef/Repository/…, Ballware.Shared.Data.Ef
