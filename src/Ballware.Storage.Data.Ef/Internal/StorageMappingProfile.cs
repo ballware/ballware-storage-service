@@ -1,23 +1,23 @@
-using AutoMapper;
+using Mapster;
 
 namespace Ballware.Storage.Data.Ef.Internal;
 
-class StorageMappingProfile : Profile
+class StorageMappingProfile : IRegister
 {
-    public StorageMappingProfile()
+    public void Register(TypeAdapterConfig config)
     {
-        CreateMap<Public.Attachment, Persistables.Attachment>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
+        config.NewConfig<Public.Attachment, Persistables.Attachment>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
 
-        CreateMap<Persistables.Attachment, Public.Attachment>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        config.NewConfig<Persistables.Attachment, Public.Attachment>()
+            .Map(dest => dest.Id, src => src.Uuid);
 
-        CreateMap<Public.Temporary, Persistables.Temporary>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
+        config.NewConfig<Public.Temporary, Persistables.Temporary>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
 
-        CreateMap<Persistables.Temporary, Public.Temporary>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        config.NewConfig<Persistables.Temporary, Public.Temporary>()
+            .Map(dest => dest.Id, src => src.Uuid);
     }
 }

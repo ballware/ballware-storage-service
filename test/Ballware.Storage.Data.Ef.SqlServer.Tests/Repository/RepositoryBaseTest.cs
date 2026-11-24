@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Ballware.Storage.Data.Ef.Configuration;
 using Ballware.Storage.Data.Ef.SqlServer.Tests.Utils;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -79,10 +81,11 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
         });
             
         PreparedBuilder.Services.AddBallwareMetaStorageForSqlServer(storageOptions, connectionString);
-        PreparedBuilder.Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareMetaStorageMappings();
-        });
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareMetaStorageMappings();
+        
+        PreparedBuilder.Services.AddSingleton(mapsterConfig);
+        PreparedBuilder.Services.AddScoped<IMapper, ServiceMapper>();
 
         Application = PreparedBuilder.Build();
         

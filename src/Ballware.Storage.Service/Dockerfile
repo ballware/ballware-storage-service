@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 5000
 EXPOSE 5001
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 ARG GITHUB_USERNAME
 ARG GITHUB_PAT
@@ -18,7 +18,7 @@ COPY ./Ballware.Storage.Data.Ef.SqlServer ./Ballware.Storage.Data.Ef.SqlServer
 COPY ./Ballware.Storage.Jobs ./Ballware.Storage.Jobs
 COPY ./Ballware.Storage.Metadata ./Ballware.Storage.Metadata
 COPY ./Ballware.Storage.Provider.Azure ./Ballware.Storage.Provider.Azure
-COPY ./Ballware.Storage.Provider.Minio ./Ballware.Storage.Provider.Minio
+COPY ./Ballware.Storage.Provider.S3 ./Ballware.Storage.Provider.S3
 COPY ./Ballware.Storage.Service ./Ballware.Storage.Service
 
 WORKDIR "/src/Ballware.Storage.Service"

@@ -1,0 +1,371 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "ballware Storage User API",
+    "version": "v1"
+  },
+  "paths": {
+    "/storage/attachment/allforentityandowner/{entity}/{ownerId}": {
+      "get": {
+        "tags": [
+          "Attachment"
+        ],
+        "summary": "Query attachments for entity and owner",
+        "operationId": "AttachmentAllForEntityAndOwner",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Attachment"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/storage/attachment/downloadforentityandownerbyid/{tenantId}/{entity}/{ownerId}/{id}": {
+      "get": {
+        "tags": [
+          "Attachment"
+        ],
+        "summary": "Download attachment for entity and owner by ID",
+        "operationId": "AttachmentDownloadForEntityAndOwnerById",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/storage/attachment/uploadforentityandowner/{entity}/{ownerId}": {
+      "post": {
+        "tags": [
+          "Attachment"
+        ],
+        "summary": "Upload attachment for entity and owner",
+        "operationId": "AttachmentUploadForEntityAndOwner",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "files"
+                ],
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "files": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/storage/attachment/dropforentityandownerbyid/{entity}/{ownerId}/{id}": {
+      "delete": {
+        "tags": [
+          "Attachment"
+        ],
+        "summary": "Drop attachment for entity and owner by ID",
+        "operationId": "AttachmentDropForEntityAndOwnerById",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/storage/attachment/dropallforentityandowner/{entity}/{ownerId}": {
+      "delete": {
+        "tags": [
+          "Attachment"
+        ],
+        "summary": "Drop all attachments for entity and owner",
+        "operationId": "AttachmentDropAllForEntityAndOwner",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/storage/temporary/downloadbyid/{tenantId}/{id}": {
+      "get": {
+        "tags": [
+          "Temporary"
+        ],
+        "summary": "Download temporary file by ID",
+        "operationId": "TemporaryDownloadById",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Attachment": {
+        "required": [
+          "ContentType",
+          "Entity",
+          "FileName",
+          "OwnerId",
+          "StoragePath"
+        ],
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "OwnerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "FileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "ContentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "FileSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "StoragePath": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://localhost/.well-known/openid-configuration"
+      }
+    }
+  },
+  "security": [
+    {
+      "oidc": [
+        "storageApi"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Attachment"
+    },
+    {
+      "name": "Temporary"
+    }
+  ]
+}
